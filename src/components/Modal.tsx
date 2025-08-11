@@ -10,14 +10,12 @@ export const Modal: React.FC<ModalProps> = ({
   backdrop = true,
   className = '',
 }) => {
-  // Close modal when clicking outside
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -35,7 +33,6 @@ export const Modal: React.FC<ModalProps> = ({
 
   const modalContent = (
     <>
-      {/* Backdrop */}
       {backdrop && (
         <div 
           className="fixed inset-0 z-40 pointer-events-auto bg-transparent"
@@ -43,8 +40,6 @@ export const Modal: React.FC<ModalProps> = ({
           data-state="open"
         />
       )}
-      
-      {/* Modal */}
       <div
         className={`
           fixed z-50 bg-neutral-950/90 text-foreground border border-white/10 rounded-2xl shadow-2xl
@@ -62,13 +57,11 @@ export const Modal: React.FC<ModalProps> = ({
         aria-modal="true"
         data-state="open"
       >
-        {/* Modal content */}
         <div>
           {children}
         </div>
       </div>
     </>
   );
-  // Render modal in a portal to ensure proper stacking
   return createPortal(modalContent, document.getElementsByClassName("vento-widget")[0]);
 };

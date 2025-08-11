@@ -18,14 +18,12 @@ export function useModal(initialOpen = false) {
     setIsOpen(prev => !prev);
   }, []);
 
-  // Calculate modal position relative to button
   useEffect(() => {
     if (isOpen && buttonRef.current) {
       const buttonRect = buttonRef.current.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
       
-      // Modal dimensions (approximate)
       const modalWidth = 384; // max-w-md (24rem = 384px)
       const modalHeight = 400; // max-h-96 (24rem = 384px, but we use 400 for safety)
       

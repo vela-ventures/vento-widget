@@ -4,7 +4,6 @@ import { Modal } from "./Modal";
 import { useModal } from "../hooks/useModal";
 import { VentoWidgetProps } from "../types";
 import "../styles.css";
-import { Button } from "./ui/button";
 import { SwapWidget } from "./SwapWidget";
 
 export const VentoWidget: React.FC<VentoWidgetProps> = ({
