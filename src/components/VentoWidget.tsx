@@ -17,6 +17,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
   onButtonClick,
   onModalClose,
   theme = "dark",
+  userAddress,
 }) => {
   const { isOpen, open, close, modalPosition, buttonRef } = useModal();
 
@@ -55,7 +56,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
         backdrop={showBackdrop}
         className={modalClassName}
       >
-        <ModalContent />
+        <ModalContent userAddress={userAddress} />
       </Modal>
     </div>
   );

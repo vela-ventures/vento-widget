@@ -55,6 +55,7 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
+    "@permaweb/aoconnect": "^0.0.50",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

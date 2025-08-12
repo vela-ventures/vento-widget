@@ -34,4 +34,17 @@ export interface VentoWidgetProps {
   onButtonClick?: () => void;
   onModalClose?: () => void;
   theme?: "light" | "dark";
+  userAddress?: string;
+}
+
+export interface TokenInfo {
+  name: string;
+  ticker: string;
+  denomination: number;
+  logo: string;
+  processId: string;
+}
+
+export interface TokenWithBalance extends TokenInfo {
+  balance?: string; // human-readable, already converted from denomination
 }

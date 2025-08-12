@@ -4,8 +4,21 @@ import { Button } from "./ui/button";
 import TokenRow from "./TokenRow";
 import { ArrowDownUp, Clock, RefreshCcw, Settings } from "lucide-react";
 import { Logo } from "./Logo";
+import { useTokens } from "../hooks/useTokens";
+import { useTokenBalance } from "../hooks/useTokenBalance";
+import type { TokenInfo } from "../types";
 
-export const ModalContent: React.FC = () => {
+export const ModalContent: React.FC<{ userAddress?: string }> = ({
+  userAddress,
+}) => {
+  const { tokens, isLoading, error, refresh } = useTokens();
+
+  const sellToken: TokenInfo | undefined = tokens[0];
+  const buyToken: TokenInfo | undefined = tokens[2];
+
+  const { balance: sellBalance } = useTokenBalance(sellToken, userAddress);
+  const { balance: buyBalance } = useTokenBalance(buyToken, userAddress);
+
   return (
     <Card className="w-[380px] bg-background backdrop-blur-md border-white/10 shadow-black/40">
       <CardHeader className="pb-8">
@@ -19,6 +32,7 @@ export const ModalContent: React.FC = () => {
               variant="secondary"
               size="icon"
               className="rounded-[8px] h-8 w-8"
+              onClick={refresh}
             >
               <RefreshCcw className="size-4 stroke-[#E9ECEF]" />
             </Button>
@@ -33,14 +47,32 @@ export const ModalContent: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent className="">
+        {isLoading && (
+          <div className="mb-3 text-sm text-secondary-foreground">
+            Loading tokens…
+          </div>
+        )}
+        {error && <div className="mb-3 text-sm text-red-400">{error}</div>}
         <div className="flex flex-col gap-1">
-          <TokenRow label="Sell" token="AO" amount="0" usd="$0.00" />
+          <TokenRow
+            label="Sell"
+            token={sellToken}
+            balance={sellBalance}
+            amount="0"
+            usd="$0.00"
+          />
           <div className="flex items-center justify-center">
             <div className="bg-background -m-5 rounded-[8px] w-10 h-10 p-2 z-10 cursor-pointer">
               <ArrowDownUp className="size-6 stroke-[#25292D]" />
             </div>
           </div>
-          <TokenRow label="Buy" token="ARIO" amount="0" usd="$0.00" />
+          <TokenRow
+            label="Buy"
+            token={buyToken}
+            balance={buyBalance}
+            amount="0"
+            usd="$0.00"
+          />
         </div>
 
         <div className="mt-4 flex items-center justify-between text-[13px] text-secondary-foreground">
