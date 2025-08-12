@@ -30,7 +30,7 @@ export function useTokenPrices(
   const [data, setData] = useState<TokenPricesResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchPrices = useCallback(async () => {
     if (!processIds || processIds.length === 0) {
@@ -56,18 +56,18 @@ export function useTokenPrices(
   }, [processIds]);
 
   useEffect(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current as unknown as number);
+      intervalRef.current = null;
     }
     fetchPrices();
-    timerRef.current = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       fetchPrices();
-    }, pollMs) as unknown as ReturnType<typeof setTimeout>;
+    }, pollMs);
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current as unknown as number);
+        intervalRef.current = null;
       }
     };
   }, [fetchPrices, pollMs]);

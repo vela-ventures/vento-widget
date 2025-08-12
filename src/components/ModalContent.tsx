@@ -14,13 +14,17 @@ import { formatTokenAmount, formatUsd } from "../lib/format";
 export const ModalContent: React.FC<{ userAddress?: string }> = ({
   userAddress,
 }) => {
-  const { tokens, isLoading, error, refresh } = useTokens();
+  const { tokens, error } = useTokens();
 
   const sellToken: TokenInfo | undefined = tokens[0];
   const buyToken: TokenInfo | undefined = tokens[2];
 
-  const { balance: sellBalance } = useTokenBalance(sellToken, userAddress);
-  const { balance: buyBalance } = useTokenBalance(buyToken, userAddress);
+  const sellBalanceHook = useTokenBalance(sellToken, userAddress);
+  const buyBalanceHook = useTokenBalance(buyToken, userAddress);
+  const sellBalance = sellBalanceHook.balance;
+  const buyBalance = buyBalanceHook.balance;
+  const sellBalanceLoading = sellBalanceHook.loading;
+  const buyBalanceLoading = buyBalanceHook.loading;
 
   const [sellAmount, setSellAmount] = React.useState<string>("");
   const { outputAmount: buyAmount, loading: quoteLoading } = useSwapQuote({
@@ -36,7 +40,8 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
     if (buyToken?.processId) ids.add(buyToken.processId);
     return Array.from(ids);
   }, [sellToken?.processId, buyToken?.processId]);
-  const { data: pricesData } = useTokenPrices(processIds);
+  const { data: pricesData, loading: pricesLoading } =
+    useTokenPrices(processIds);
 
   const sellUsd = React.useMemo(() => {
     if (!pricesData || !sellToken) return "$0.00";
@@ -71,7 +76,10 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
               variant="secondary"
               size="icon"
               className="rounded-[8px] h-8 w-8"
-              onClick={refresh}
+              onClick={() => {
+                sellBalanceHook.refetch();
+                buyBalanceHook.refetch();
+              }}
             >
               <RefreshCcw className="size-4 stroke-[#E9ECEF]" />
             </Button>
@@ -86,11 +94,6 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
         </div>
       </CardHeader>
       <CardContent className="">
-        {isLoading && (
-          <div className="mb-3 text-sm text-secondary-foreground">
-            Loading tokens…
-          </div>
-        )}
         {error && <div className="mb-3 text-sm text-red-400">{error}</div>}
         <div className="flex flex-col gap-1">
           <TokenRow
@@ -100,6 +103,8 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             amount={sellAmount ? formatTokenAmount(sellAmount) : ""}
             usd={sellUsd}
             onAmountChange={setSellAmount}
+            loadingBalance={!!sellBalanceLoading}
+            amountLoading={false}
           />
           <div className="flex items-center justify-center">
             <div className="bg-background -m-5 rounded-[8px] w-10 h-10 p-2 z-10 cursor-pointer">
@@ -110,8 +115,10 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             label="Buy"
             token={buyToken}
             balance={buyBalance}
-            amount={formatTokenAmount(buyAmount ?? "0")}
+            amountLoading={quoteLoading}
+            amount={quoteLoading ? "" : formatTokenAmount(buyAmount ?? "0")}
             usd={buyUsd}
+            loadingBalance={!!buyBalanceLoading}
           />
         </div>
 
@@ -124,10 +131,12 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
         </div>
 
         <Button
-          disabled
-          className="mt-16 w-full h-11 rounded-xl bg-white/10 text-white/70 hover:bg-white/10"
+          disabled={!sellAmount || Number(sellAmount) <= 0 || !buyAmount}
+          className="mt-16 w-full h-11 rounded-xl"
         >
-          Enter amounts
+          {!sellAmount || Number(sellAmount) <= 0 || !buyAmount
+            ? "Enter amounts"
+            : "Swap"}
         </Button>
       </CardContent>
     </Card>

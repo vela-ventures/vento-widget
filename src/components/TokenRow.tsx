@@ -10,6 +10,8 @@ const TokenRow: React.FC<{
   amount?: string;
   usd?: string;
   onAmountChange?: (value: string) => void;
+  loadingBalance?: boolean;
+  amountLoading?: boolean;
 }> = ({
   label,
   token,
@@ -17,11 +19,13 @@ const TokenRow: React.FC<{
   amount = "",
   usd = "$0.00",
   onAmountChange,
+  loadingBalance = false,
+  amountLoading = false,
 }) => {
   return (
     <div className="rounded-2xl border border-solid border-secondary px-5 py-4">
       <div className="text-base text-secondary-foreground mb-3 text-left">
-        {label} {amount}
+        {label}
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -44,18 +48,26 @@ const TokenRow: React.FC<{
             <ChevronDown className="size-[14px] stroke-current" />
           </div>
         </div>
-        <Input
-          className="text-3xl pr-0 tabular-nums font-semibold border-none text-right ring-0 focus-visible:ring-0"
-          inputMode="numeric"
-          value={amount}
-          placeholder="0"
-          onChange={(e) => onAmountChange?.(e.target.value)}
-        />
+        {amountLoading ? (
+          <div className="h-8 w-24 rounded bg-muted/30 animate-pulse" />
+        ) : (
+          <Input
+            className="text-3xl pr-0 tabular-nums font-semibold border-none text-right ring-0 focus-visible:ring-0"
+            inputMode="numeric"
+            value={amount}
+            placeholder="0"
+            onChange={(e) => onAmountChange?.(e.target.value)}
+          />
+        )}
       </div>
       <div className="mt-3 flex items-center justify-between text-sm text-secondary-foreground">
         <div className="flex items-center gap-2">
           <Wallet className="size-4 stroke-current" />
-          <span>{formatTokenAmount(balance) ?? "-"}</span>
+          {loadingBalance ? (
+            <div className="h-4 w-14 rounded bg-muted/30 animate-pulse" />
+          ) : (
+            <span>{formatTokenAmount(balance) ?? "-"}</span>
+          )}
         </div>
         <span>≈ {usd}</span>
       </div>
