@@ -4,7 +4,7 @@ import { Modal } from "./Modal";
 import { useModal } from "../hooks/useModal";
 import { VentoWidgetProps } from "../types";
 import "../styles.css";
-import { SwapWidget } from "./SwapWidget";
+import { ModalContent } from "./ModalContent";
 
 export const VentoWidget: React.FC<VentoWidgetProps> = ({
   position,
@@ -50,7 +50,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
         backdrop={showBackdrop}
         className={modalClassName}
       >
-        <SwapWidget />
+        <ModalContent />
       </Modal>
     </div>
   );
