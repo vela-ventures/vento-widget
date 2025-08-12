@@ -16,12 +16,17 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
   children,
   onButtonClick,
   onModalClose,
-  theme = "light",
+  theme = "dark",
 }) => {
   const { isOpen, open, close, modalPosition, buttonRef } = useModal();
 
   const handleButtonClick = () => {
-    open();
+    if (isOpen) {
+      close();
+    } else {
+      open();
+    }
+
     onButtonClick?.();
   };
 
