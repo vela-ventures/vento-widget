@@ -8,6 +8,8 @@ import { useTokens } from "../hooks/useTokens";
 import { useTokenBalance } from "../hooks/useTokenBalance";
 import type { TokenInfo } from "../types";
 import { useSwapQuote } from "../hooks/useSwapQuote";
+import { useTokenPrices } from "../hooks/useTokenPrices";
+import { formatTokenAmount, formatUsd } from "../lib/format";
 
 export const ModalContent: React.FC<{ userAddress?: string }> = ({
   userAddress,
@@ -20,13 +22,41 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
   const { balance: sellBalance } = useTokenBalance(sellToken, userAddress);
   const { balance: buyBalance } = useTokenBalance(buyToken, userAddress);
 
-  const [sellAmount, setSellAmount] = React.useState<string>("0");
+  const [sellAmount, setSellAmount] = React.useState<string>("");
   const { outputAmount: buyAmount, loading: quoteLoading } = useSwapQuote({
     fromToken: sellToken,
     toToken: buyToken,
     amount: sellAmount,
     userAddress,
   });
+
+  const processIds = React.useMemo(() => {
+    const ids = new Set<string>();
+    if (sellToken?.processId) ids.add(sellToken.processId);
+    if (buyToken?.processId) ids.add(buyToken.processId);
+    return Array.from(ids);
+  }, [sellToken?.processId, buyToken?.processId]);
+  const { data: pricesData } = useTokenPrices(processIds);
+
+  const sellUsd = React.useMemo(() => {
+    if (!pricesData || !sellToken) return "$0.00";
+    const entry = pricesData.prices.processes.find(
+      (p) => p.id === sellToken.processId
+    );
+    const price = entry?.price ?? 0;
+    const value = Number(sellAmount || "0") * price;
+    return formatUsd(value);
+  }, [pricesData, sellToken?.processId, sellAmount]);
+
+  const buyUsd = React.useMemo(() => {
+    if (!pricesData || !buyToken) return "$0.00";
+    const entry = pricesData.prices.processes.find(
+      (p) => p.id === buyToken.processId
+    );
+    const price = entry?.price ?? 0;
+    const value = Number(buyAmount || "0") * price;
+    return formatUsd(value);
+  }, [pricesData, buyToken?.processId, buyAmount]);
 
   return (
     <Card className="w-[380px] bg-background backdrop-blur-md border-white/10 shadow-black/40">
@@ -67,8 +97,8 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             label="Sell"
             token={sellToken}
             balance={sellBalance}
-            amount={sellAmount}
-            usd="$0.00"
+            amount={sellAmount ? formatTokenAmount(sellAmount) : ""}
+            usd={sellUsd}
             onAmountChange={setSellAmount}
           />
           <div className="flex items-center justify-center">
@@ -80,8 +110,8 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             label="Buy"
             token={buyToken}
             balance={buyBalance}
-            amount={buyAmount ?? "0"}
-            usd="$0.00"
+            amount={formatTokenAmount(buyAmount ?? "0")}
+            usd={buyUsd}
           />
         </div>
 
