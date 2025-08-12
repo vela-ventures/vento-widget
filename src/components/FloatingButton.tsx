@@ -1,5 +1,6 @@
 import React from "react";
 import { FloatingButtonProps } from "../types";
+import { Logo } from "./Logo";
 
 export const FloatingButton = React.forwardRef<
   HTMLButtonElement,
@@ -22,10 +23,9 @@ export const FloatingButton = React.forwardRef<
           fixed z-50 h-12 w-12 rounded-full 
           bg-neutral-900/80 text-white border border-white/10 backdrop-blur-md
           shadow-xl shadow-black/40
-          transition-all duration-200 ease-in-out
-          hover:shadow-2xl hover:scale-105 
+          transition-all duration-200 ease-in-out hover:scale-105 
           active:scale-95 
-          focus:outline-none focus:ring-2 focus:ring-ring/60 focus:ring-offset-0
+          focus:outline-none
           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
           flex items-center justify-center
           ${positionClasses}
@@ -56,18 +56,9 @@ export const FloatingButton = React.forwardRef<
                 <path d="M6 6l12 12" />
               </svg>
             ) : (
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-              >
-                <circle cx="12" cy="12" r="7" opacity="0.6" />
-                <path d="M12 5.5a6.5 6.5 0 016.5 6.5" />
-                <path d="M5.5 12A6.5 6.5 0 0012 18.5" />
-              </svg>
+              <div className="flex items-center justify-center size-5">
+                <Logo />
+              </div>
             )}
           </span>
         )}

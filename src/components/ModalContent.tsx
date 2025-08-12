@@ -7,6 +7,7 @@ import { Logo } from "./Logo";
 import { useTokens } from "../hooks/useTokens";
 import { useTokenBalance } from "../hooks/useTokenBalance";
 import type { TokenInfo } from "../types";
+import { useSwapQuote } from "../hooks/useSwapQuote";
 
 export const ModalContent: React.FC<{ userAddress?: string }> = ({
   userAddress,
@@ -18,6 +19,14 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
 
   const { balance: sellBalance } = useTokenBalance(sellToken, userAddress);
   const { balance: buyBalance } = useTokenBalance(buyToken, userAddress);
+
+  const [sellAmount, setSellAmount] = React.useState<string>("0");
+  const { outputAmount: buyAmount, loading: quoteLoading } = useSwapQuote({
+    fromToken: sellToken,
+    toToken: buyToken,
+    amount: sellAmount,
+    userAddress,
+  });
 
   return (
     <Card className="w-[380px] bg-background backdrop-blur-md border-white/10 shadow-black/40">
@@ -58,8 +67,9 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             label="Sell"
             token={sellToken}
             balance={sellBalance}
-            amount="0"
+            amount={sellAmount}
             usd="$0.00"
+            onAmountChange={setSellAmount}
           />
           <div className="flex items-center justify-center">
             <div className="bg-background -m-5 rounded-[8px] w-10 h-10 p-2 z-10 cursor-pointer">
@@ -70,7 +80,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             label="Buy"
             token={buyToken}
             balance={buyBalance}
-            amount="0"
+            amount={buyAmount ?? "0"}
             usd="$0.00"
           />
         </div>
