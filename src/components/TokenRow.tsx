@@ -1,3 +1,4 @@
+import { ChevronDown, Wallet } from "lucide-react";
 import { Input } from "./ui/input";
 
 const TokenRow: React.FC<{
@@ -19,21 +20,7 @@ const TokenRow: React.FC<{
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 h-9 text-sm">
             <span className="font-medium">{token}</span>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M5 7l5 5 5-5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <ChevronDown className="size-[14px] stroke-current" />
           </div>
         </div>
         <Input
@@ -44,17 +31,7 @@ const TokenRow: React.FC<{
       </div>
       <div className="mt-3 flex items-center justify-between text-sm text-secondary-foreground">
         <div className="flex items-center gap-2">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          >
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 7v6l3 3" />
-          </svg>
+          <Wallet className="size-4 stroke-current" />
           <span>14.55</span>
         </div>
         <span>≈ {usd}</span>
