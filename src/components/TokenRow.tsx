@@ -1,3 +1,5 @@
+import { Input } from "./ui/input";
+
 const TokenRow: React.FC<{
   label: string;
   token: string;
@@ -7,7 +9,9 @@ const TokenRow: React.FC<{
 }> = ({ label, token, logo, amount = "0", usd = "$0.00" }) => {
   return (
     <div className="rounded-2xl border border-solid border-secondary px-5 py-4">
-      <div className="text-base text-secondary-foreground mb-3 text-left">{label}</div>
+      <div className="text-base text-secondary-foreground mb-3 text-left">
+        {label}
+      </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="size-9 rounded-full bg-muted/30 grid place-items-center">
@@ -32,7 +36,11 @@ const TokenRow: React.FC<{
             </svg>
           </div>
         </div>
-        <div className="text-3xl tabular-nums font-semibold">{amount}</div>
+        <Input
+          className="text-3xl pr-0 tabular-nums font-semibold border-none text-right ring-0 focus-visible:ring-0"
+          inputMode="numeric"
+          value={amount}
+        />
       </div>
       <div className="mt-3 flex items-center justify-between text-sm text-secondary-foreground">
         <div className="flex items-center gap-2">
