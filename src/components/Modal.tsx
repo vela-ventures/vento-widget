@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { ModalProps } from '../types';
+import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
+import { ModalProps } from "../types";
 
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
@@ -8,7 +8,8 @@ export const Modal: React.FC<ModalProps> = ({
   position,
   children,
   backdrop = true,
-  className = '',
+  className = "",
+  container,
 }) => {
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -18,26 +19,24 @@ export const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       return () => {
-        document.body.style.overflow = '';
+        document.body.style.overflow = "";
       };
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
-  const modalPositionClasses = position 
-    ? '' 
-    : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
+  const modalPositionClasses = position
+    ? ""
+    : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
 
   const modalContent = (
     <>
-      {backdrop && (
-        <div 
+      {backdrop && isOpen && (
+        <div
           className="fixed inset-0 z-40 pointer-events-auto bg-transparent"
           onClick={handleBackdropClick}
-          data-state="open"
+          data-state={isOpen ? "open" : "closed"}
         />
       )}
       <div
@@ -54,14 +53,17 @@ export const Modal: React.FC<ModalProps> = ({
         `}
         style={position}
         role="dialog"
-        aria-modal="true"
-        data-state="open"
+        aria-modal={isOpen ? "true" : undefined}
+        data-state={isOpen ? "open" : "closed"}
+        hidden={!isOpen}
       >
-        <div>
-          {children}
-        </div>
+        <div>{children}</div>
       </div>
     </>
   );
-  return createPortal(modalContent, document.getElementsByClassName("vento-widget")[0]);
+  const target =
+    container ??
+    document.getElementsByClassName("vento-widget")[0] ??
+    document.body;
+  return createPortal(modalContent, target);
 };

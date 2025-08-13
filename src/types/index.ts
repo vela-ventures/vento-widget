@@ -21,6 +21,7 @@ export interface ModalProps {
   children?: React.ReactNode;
   backdrop?: boolean;
   className?: string;
+  container?: HTMLElement | null;
 }
 
 export interface VentoWidgetProps {

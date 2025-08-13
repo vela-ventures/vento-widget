@@ -55,6 +55,13 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
         position={modalPosition}
         backdrop={showBackdrop}
         className={modalClassName}
+        container={
+          typeof document !== "undefined"
+            ? (document.getElementsByClassName(
+                "vento-widget"
+              )[0] as HTMLElement)
+            : undefined
+        }
       >
         <ModalContent userAddress={userAddress} />
       </Modal>

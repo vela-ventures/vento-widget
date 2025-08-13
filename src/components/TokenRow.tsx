@@ -24,7 +24,7 @@ const TokenRow: React.FC<{
 }) => {
   return (
     <div className="rounded-2xl border border-solid border-secondary px-5 py-4">
-      <div className="text-base text-secondary-foreground mb-3 text-left">
+      <div className="text-base text-secondary-foreground mb-2 text-left">
         {label}
       </div>
       <div className="flex items-center justify-between">
