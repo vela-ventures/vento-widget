@@ -27,7 +27,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
   }, [tokens, query]);
 
   return (
-    <div className="p-4 bg-card relative z-20 min-h-full">
+    <div className="p-4 bg-card relative z-20 h-full flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <Button
           variant="secondary"
@@ -50,7 +50,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 vento-scroll overflow-y-auto pr-1 flex-1">
         {filtered.map((t) => (
           <button
             key={t.processId}
