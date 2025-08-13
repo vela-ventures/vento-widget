@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { ChevronLeft, Clock } from "lucide-react";
+import { ChevronLeft, Clock, Wallet } from "lucide-react";
 
 import React from "react";
 import type { TokenInfo } from "../types";
@@ -11,6 +11,12 @@ interface ConfirmSwapPageProps {
   buyToken: TokenInfo | undefined;
   sellAmount: string;
   buyAmount: string;
+  sellBalance?: string;
+  buyBalance?: string;
+  sellBalanceLoading?: boolean;
+  buyBalanceLoading?: boolean;
+  sellUsd?: string;
+  buyUsd?: string;
   exchangeText?: string;
   slippagePercent?: number;
   minReceivedText?: string;
@@ -26,6 +32,12 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
   buyToken,
   sellAmount,
   buyAmount,
+  sellBalance,
+  buyBalance,
+  sellBalanceLoading,
+  buyBalanceLoading,
+  sellUsd,
+  buyUsd,
   exchangeText,
   slippagePercent = 1,
   minReceivedText,
@@ -48,11 +60,27 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
         <div className="text-base font-medium">Confirm and swap</div>
       </div>
 
-      <div className="rounded-2xl border border-solid border-secondary px-5 py-4 mb-3">
-        <div className="text-sm text-secondary-foreground mb-2">Sell</div>
+      <div className="rounded-2xl border border-solid border-secondary px-5 py-4 mb-2">
+        <div className="text-sm text-secondary-foreground mb-2 text-left">
+          Sell
+        </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-[30px] rounded-full bg-muted/30 grid place-items-center" />
+            <div className="size-[30px] rounded-full bg-muted/30 grid place-items-center">
+              {sellToken?.logo ? (
+                <img
+                  src={`https://arweave.net/${sellToken.logo}`}
+                  alt={sellToken?.ticker ?? "token"}
+                  className="size-full rounded-full object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display =
+                      "none";
+                  }}
+                />
+              ) : (
+                <div className="size-5 rounded-full bg-muted" />
+              )}
+            </div>
             <div className="inline-flex items-center gap-1.5 h-9 text-sm">
               <span className="text-xl">{sellToken?.ticker}</span>
             </div>
@@ -62,16 +90,37 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
           </div>
         </div>
         <div className="mt-3 flex items-center justify-between text-sm text-secondary-foreground">
-          <div className="flex items-center gap-2" />
-          <span>≈ {formatUsd(0)}</span>
+          <div className="flex items-center gap-2">
+            <Wallet className="size-4 stroke-current" />
+            {sellBalanceLoading ? (
+              <div className="h-4 w-14 rounded bg-muted/30 animate-pulse" />
+            ) : (
+              <span>{formatTokenAmount(sellBalance) ?? "-"}</span>
+            )}
+          </div>
+          <span>≈ {sellUsd ?? formatUsd(0)}</span>
         </div>
       </div>
 
       <div className="rounded-2xl border border-solid border-secondary px-5 py-4 mb-4">
-        <div className="text-sm text-secondary-foreground mb-2">Buy</div>
+        <div className="text-sm text-secondary-foreground mb-2 text-left">Buy</div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-[30px] rounded-full bg-muted/30 grid place-items-center" />
+            <div className="size-[30px] rounded-full bg-muted/30 grid place-items-center">
+              {buyToken?.logo ? (
+                <img
+                  src={`https://arweave.net/${buyToken.logo}`}
+                  alt={buyToken?.ticker ?? "token"}
+                  className="size-full rounded-full object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display =
+                      "none";
+                  }}
+                />
+              ) : (
+                <div className="size-5 rounded-full bg-muted" />
+              )}
+            </div>
             <div className="inline-flex items-center gap-1.5 h-9 text-sm">
               <span className="text-xl">{buyToken?.ticker}</span>
             </div>
@@ -81,8 +130,15 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
           </div>
         </div>
         <div className="mt-3 flex items-center justify-between text-sm text-secondary-foreground">
-          <div className="flex items-center gap-2" />
-          <span>≈ {formatUsd(0)}</span>
+          <div className="flex items-center gap-2">
+            <Wallet className="size-4 stroke-current" />
+            {buyBalanceLoading ? (
+              <div className="h-4 w-14 rounded bg-muted/30 animate-pulse" />
+            ) : (
+              <span>{formatTokenAmount(buyBalance) ?? "-"}</span>
+            )}
+          </div>
+          <span>≈ {buyUsd ?? formatUsd(0)}</span>
         </div>
       </div>
 
@@ -118,7 +174,7 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
       </div>
 
       <Button
-        className="mt-auto w-full h-11 rounded-xl"
+        className="mt-auto w-full h-11 rounded-xl border-none"
         disabled={!!confirmDisabled || confirmLoading}
         onClick={() => onConfirm()}
       >

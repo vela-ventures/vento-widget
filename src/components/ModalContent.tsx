@@ -215,6 +215,12 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             buyToken={buyToken}
             sellAmount={sellAmount}
             buyAmount={buyAmount ?? "0"}
+            sellBalance={sellBalance}
+            buyBalance={buyBalance}
+            sellBalanceLoading={!!sellBalanceLoading}
+            buyBalanceLoading={!!buyBalanceLoading}
+            sellUsd={sellUsd}
+            buyUsd={buyUsd}
             slippagePercent={1}
             confirmLoading={
               isSwapLoading ||
