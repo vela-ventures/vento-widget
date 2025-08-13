@@ -21,7 +21,7 @@ export const FloatingButton = React.forwardRef<
         disabled={disabled}
         className={`
           fixed z-50 h-12 w-12 rounded-full 
-          bg-neutral-900/80 text-white border border-white/10 backdrop-blur-md
+          bg-card text-white border border-white/10 backdrop-blur-md
           shadow-xl shadow-black/40
           transition-all duration-200 ease-in-out hover:scale-105 
           active:scale-95 

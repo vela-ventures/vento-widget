@@ -12,6 +12,7 @@ const TokenRow: React.FC<{
   onAmountChange?: (value: string) => void;
   loadingBalance?: boolean;
   amountLoading?: boolean;
+  onTokenClick?: () => void;
 }> = ({
   label,
   token,
@@ -21,6 +22,7 @@ const TokenRow: React.FC<{
   onAmountChange,
   loadingBalance = false,
   amountLoading = false,
+  onTokenClick,
 }) => {
   return (
     <div className="rounded-2xl border border-solid border-secondary px-5 py-4">
@@ -43,16 +45,20 @@ const TokenRow: React.FC<{
               <div className="size-5 rounded-full bg-muted" />
             )}
           </div>
-          <div className="inline-flex items-center gap-1.5 h-9 text-sm">
+          <button
+            type="button"
+            onClick={onTokenClick}
+            className="inline-flex p-0 bg-card items-center gap-1.5 h-9 text-sm cursor-pointer border-none hover:border-none focus-visible:outline-none"
+          >
             <span className="text-xl">{token?.ticker ?? ""}</span>
             <ChevronDown className="size-[14px] stroke-current" />
-          </div>
+          </button>
         </div>
         {amountLoading ? (
           <div className="h-8 w-24 rounded bg-muted/30 animate-pulse" />
         ) : (
           <Input
-            className="text-3xl pr-0 tabular-nums font-semibold border-none text-right ring-0 focus-visible:ring-0"
+            className="text-3xl bg-card pr-0 tabular-nums font-semibold border-none placeholder:text-secondary-foreground text-right ring-0 focus-visible:ring-0"
             inputMode="numeric"
             value={amount}
             placeholder="0"

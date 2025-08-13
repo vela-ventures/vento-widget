@@ -41,7 +41,7 @@ export const Modal: React.FC<ModalProps> = ({
       )}
       <div
         className={`
-          fixed z-50 bg-neutral-950/90 text-foreground border border-white/10 rounded-2xl shadow-2xl
+          fixed z-50 bg-card text-foreground border border-white/10 rounded-2xl shadow-2xl
           w-[380px] max-h-[85vh] overflow-hidden
           data-[state=open]:animate-in data-[state=closed]:animate-out 
           data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 

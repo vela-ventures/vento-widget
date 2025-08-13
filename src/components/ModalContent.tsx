@@ -10,14 +10,24 @@ import type { TokenInfo } from "../types";
 import { useSwapQuote } from "../hooks/useSwapQuote";
 import { useTokenPrices } from "../hooks/useTokenPrices";
 import { formatTokenAmount, formatUsd } from "../lib/format";
+import TokenSelector from "./TokenSelector";
 
 export const ModalContent: React.FC<{ userAddress?: string }> = ({
   userAddress,
 }) => {
   const { tokens, error } = useTokens();
 
-  const sellToken: TokenInfo | undefined = tokens[0];
-  const buyToken: TokenInfo | undefined = tokens[2];
+  const [sellToken, setSellToken] = React.useState<TokenInfo | undefined>(
+    undefined
+  );
+  const [buyToken, setBuyToken] = React.useState<TokenInfo | undefined>(
+    undefined
+  );
+  React.useEffect(() => {
+    if (!sellToken && tokens[0]) setSellToken(tokens[0]);
+    if (!buyToken && tokens[2]) setBuyToken(tokens[2]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tokens]);
 
   const sellBalanceHook = useTokenBalance(sellToken, userAddress);
   const buyBalanceHook = useTokenBalance(buyToken, userAddress);
@@ -27,6 +37,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
   const buyBalanceLoading = buyBalanceHook.loading;
 
   const [sellAmount, setSellAmount] = React.useState<string>("");
+  const [selecting, setSelecting] = React.useState<null | "sell" | "buy">(null);
   const { outputAmount: buyAmount, loading: quoteLoading } = useSwapQuote({
     fromToken: sellToken,
     toToken: buyToken,
@@ -64,7 +75,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
   }, [pricesData, buyToken?.processId, buyAmount]);
 
   return (
-    <Card className="w-[380px] bg-background backdrop-blur-md border-white/10 shadow-black/40">
+    <Card className="w-[380px] backdrop-blur-md border-white/10 shadow-black/40">
       <CardHeader className="pb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -105,6 +116,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             onAmountChange={setSellAmount}
             loadingBalance={!!sellBalanceLoading}
             amountLoading={false}
+            onTokenClick={() => setSelecting("sell")}
           />
           <div className="flex items-center justify-center">
             <div className="bg-background -m-5 rounded-[8px] w-10 h-10 p-2 z-10 cursor-pointer">
@@ -119,6 +131,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             amount={quoteLoading ? "" : formatTokenAmount(buyAmount ?? "0")}
             usd={buyUsd}
             loadingBalance={!!buyBalanceLoading}
+            onTokenClick={() => setSelecting("buy")}
           />
         </div>
 
@@ -139,6 +152,19 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             : "Swap"}
         </Button>
       </CardContent>
+      {selecting && (
+        <div className="absolute inset-0 bg-neutral-950/95">
+          <TokenSelector
+            tokens={tokens}
+            onBack={() => setSelecting(null)}
+            onSelect={(t) => {
+              if (selecting === "sell") setSellToken(t);
+              if (selecting === "buy") setBuyToken(t);
+              setSelecting(null);
+            }}
+          />
+        </div>
+      )}
     </Card>
   );
 };

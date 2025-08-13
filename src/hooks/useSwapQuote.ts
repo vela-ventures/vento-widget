@@ -36,7 +36,6 @@ export function useSwapQuote(
     Number(params.amount) > 0;
 
   const fetchQuote = useCallback(async () => {
-    console.log("fetchQuote");
     if (!valid) {
       setOutputAmount(null);
       setError(null);
@@ -50,7 +49,6 @@ export function useSwapQuote(
         params.amount!,
         params.fromToken!.denomination
       );
-      console.log("rawAmount", rawAmount);
       const result: any = await (client as any).getSwapQuote({
         fromTokenId: params.fromToken!.processId,
         toTokenId: params.toToken!.processId,
@@ -62,7 +60,6 @@ export function useSwapQuote(
       const estimated = result?.bestRoute?.estimatedOutput as
         | string
         | undefined;
-      console.log("estimated", estimated);
       if (typeof estimated === "string") {
         const human = convertFromDenomination(
           estimated,
@@ -88,7 +85,6 @@ export function useSwapQuote(
     }
     requestIdRef.current++;
     timerRef.current = setTimeout(() => {
-      console.log("debouncing");
       fetchQuote();
     }, debounceMs);
     return () => {
