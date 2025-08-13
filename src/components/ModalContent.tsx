@@ -12,9 +12,7 @@ import { useTokenPrices } from "../hooks/useTokenPrices";
 import { formatTokenAmount, formatUsd } from "../lib/format";
 import TokenSelector from "./TokenSelector";
 import ConfirmSwapModal from "./ConfirmSwapModal";
-import { message, createDataItemSigner } from "@permaweb/aoconnect";
-import { useVentoClient } from "../hooks/useVentoClient";
-import { convertToDenomination } from "../lib/math";
+import { useSwapFlow } from "../hooks/useSwapFlow";
 
 export const ModalContent: React.FC<{ userAddress?: string }> = ({
   userAddress,
@@ -82,103 +80,40 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
     return formatUsd(value);
   }, [pricesData, buyToken?.processId, buyAmount]);
 
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [isSwapLoading, setIsSwapLoading] = React.useState(false);
-  const [permaswapMessage, setPermaswapMessage] = React.useState<any | null>(
-    null
-  );
-  const [selectedRoute, setSelectedRoute] = React.useState<any | null>(null);
-  const { client } = useVentoClient();
+  const {
+    confirmOpen,
+    setConfirmOpen,
+    isSwapLoading,
+    permaswapMessage,
+    selectedRoute,
+    setSelectedRoute,
+    setPermaswapMessage,
+    onSwapClick,
+    handleConfirm,
+  } = useSwapFlow();
 
-  const onSwapClick = React.useCallback(async () => {
-    if (!sellToken || !buyToken || !sellAmount || !buyAmount) return;
-    try {
-      setIsSwapLoading(true);
-      setSelectedRoute(bestRoute ?? null);
-      setConfirmOpen(true);
-      setPermaswapMessage(null);
-      if (bestRoute?.dex === "permaswap" && client) {
-        const rawAmount = convertToDenomination(
-          sellAmount,
-          sellToken.denomination
-        );
-        const minAmount = String(bestRoute.estimatedOutput ?? "0");
-        const prepared = await (client as any).prepareSwapMessage({
-          route: bestRoute,
-          fromTokenId: sellToken.processId,
-          toTokenId: buyToken.processId,
-          amount: rawAmount,
-          minAmount,
-          userAddress,
-        });
-        setPermaswapMessage(prepared);
-      }
-    } catch (e) {
-      console.error("Swap error:", e);
-    } finally {
-      setIsSwapLoading(false);
-    }
+  const handleSwapClick = React.useCallback(() => {
+    onSwapClick({
+      sellToken,
+      buyToken,
+      sellAmount,
+      buyAmount,
+      bestRoute,
+      userAddress,
+    });
   }, [
     sellToken,
     buyToken,
     sellAmount,
     buyAmount,
     bestRoute,
-    client,
     userAddress,
+    onSwapClick,
   ]);
 
-  const handleConfirm = React.useCallback(async () => {
-    try {
-      if (
-        !sellToken ||
-        !buyToken ||
-        !sellAmount ||
-        !bestRoute ||
-        !client ||
-        !userAddress
-      )
-        return;
-      let messageId: string | undefined;
-      if (bestRoute?.dex === "botega") {
-        const rawAmount = convertToDenomination(
-          sellAmount,
-          sellToken.denomination
-        );
-        const minAmount = String(bestRoute.estimatedOutput ?? "0");
-        const result = await (client as any).executeSwap(
-          bestRoute,
-          sellToken.processId,
-          buyToken.processId,
-          rawAmount,
-          minAmount,
-          userAddress
-        );
-        messageId = result?.messageId;
-      } else if (bestRoute?.dex === "permaswap" && permaswapMessage) {
-        const res = await message({
-          process: permaswapMessage?.unsignedMessage.process,
-          signer: createDataItemSigner((window as any).arweaveWallet),
-          tags: permaswapMessage?.unsignedMessage.tags,
-        });
-        messageId = res;
-      }
-      if (messageId) {
-        // In a future step, we can show a status tracker
-        setConfirmOpen(false);
-      }
-    } catch (error) {
-      console.error("Swap error:", error);
-    }
-  }, [
-    sellToken,
-    buyToken,
-    sellAmount,
-    bestRoute,
-    client,
-    userAddress,
-    permaswapMessage,
-  ]);
+  const handleConfirmClick = React.useCallback(() => {
+    handleConfirm({ sellToken, buyToken, sellAmount, bestRoute, userAddress });
+  }, [sellToken, buyToken, sellAmount, bestRoute, userAddress, handleConfirm]);
 
   return (
     <Card className="w-[380px] backdrop-blur-md border-white/10 shadow-black/40">
@@ -252,7 +187,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
         <Button
           disabled={!sellAmount || Number(sellAmount) <= 0 || !buyAmount}
           className="mt-16 w-full h-11 rounded-xl"
-          onClick={onSwapClick}
+          onClick={handleSwapClick}
         >
           {!sellAmount || Number(sellAmount) <= 0 || !buyAmount
             ? "Enter amounts"
@@ -286,7 +221,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
               (bestRoute?.dex === "permaswap" && !permaswapMessage)
             }
             confirmDisabled={!bestRoute || !sellAmount || !buyAmount}
-            onConfirm={handleConfirm}
+            onConfirm={handleConfirmClick}
           />
         </div>
       )}

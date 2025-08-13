@@ -48,12 +48,14 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
         <div className="text-base font-medium">Confirm and swap</div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 p-4 mb-3">
+      <div className="rounded-2xl border border-solid border-secondary px-5 py-4 mb-3">
         <div className="text-sm text-secondary-foreground mb-2">Sell</div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="size-8 rounded-full bg-muted/30" />
-            <div className="text-base">{sellToken?.ticker}</div>
+          <div className="flex items-center gap-2">
+            <div className="size-[30px] rounded-full bg-muted/30 grid place-items-center" />
+            <div className="inline-flex items-center gap-1.5 h-9 text-sm">
+              <span className="text-xl">{sellToken?.ticker}</span>
+            </div>
           </div>
           <div className="text-2xl font-semibold">
             {formatTokenAmount(sellAmount)}
@@ -65,12 +67,14 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 p-4 mb-4">
+      <div className="rounded-2xl border border-solid border-secondary px-5 py-4 mb-4">
         <div className="text-sm text-secondary-foreground mb-2">Buy</div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="size-8 rounded-full bg-muted/30" />
-            <div className="text-base">{buyToken?.ticker}</div>
+          <div className="flex items-center gap-2">
+            <div className="size-[30px] rounded-full bg-muted/30 grid place-items-center" />
+            <div className="inline-flex items-center gap-1.5 h-9 text-sm">
+              <span className="text-xl">{buyToken?.ticker}</span>
+            </div>
           </div>
           <div className="text-2xl font-semibold">
             {formatTokenAmount(buyAmount)}
