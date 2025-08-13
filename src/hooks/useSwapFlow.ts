@@ -84,11 +84,19 @@ export function useSwapFlow() {
         return;
       let messageId: string | undefined;
       if (bestRoute?.dex === "botega") {
+        console.log("botega");
         const rawAmount = convertToDenomination(
           sellAmount,
           sellToken.denomination
         );
         const minAmount = String(bestRoute.estimatedOutput ?? "0");
+        console.log("rawAmount", rawAmount);
+        console.log("minAmount", minAmount);
+        console.log("sellToken.processId", sellToken.processId);
+        console.log("buyToken.processId", buyToken.processId);
+        console.log("userAddress", userAddress);
+        console.log("bestRoute", bestRoute);
+        console.log("client", client);
         const result = await (client as any).executeSwap(
           bestRoute,
           sellToken.processId,

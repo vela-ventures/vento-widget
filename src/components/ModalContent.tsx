@@ -32,8 +32,12 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens]);
 
-  const sellBalanceHook = useTokenBalance(sellToken, userAddress);
-  const buyBalanceHook = useTokenBalance(buyToken, userAddress);
+  const sellBalanceHook = useTokenBalance(sellToken, userAddress, {
+    pollMs: 30000,
+  });
+  const buyBalanceHook = useTokenBalance(buyToken, userAddress, {
+    pollMs: 30000,
+  });
   const sellBalance = sellBalanceHook.balance;
   const buyBalance = buyBalanceHook.balance;
   const sellBalanceLoading = sellBalanceHook.loading;
@@ -122,6 +126,14 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
     loading: statusLoading,
     isCompleted,
   } = useSwapStatus(swapId ?? null, true);
+
+  React.useEffect(() => {
+    if (isCompleted) {
+      sellBalanceHook.refetch();
+      buyBalanceHook.refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCompleted]);
 
   return (
     <Card className="w-[380px] backdrop-blur-md border-white/10 shadow-black/40">

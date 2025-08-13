@@ -12,12 +12,14 @@ interface UseTokenBalanceResult {
 
 export function useTokenBalance(
   token: TokenInfo | undefined,
-  userAddress: string | undefined
+  userAddress: string | undefined,
+  options?: { pollMs?: number }
 ): UseTokenBalanceResult {
   const [balance, setBalance] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchBalance = useCallback(async () => {
     if (!token || !userAddress) return;
@@ -63,6 +65,32 @@ export function useTokenBalance(
     fetchBalance();
     return () => abortRef.current?.abort();
   }, [fetchBalance]);
+
+  useEffect(() => {
+    const pollMs = options?.pollMs ?? 0;
+    if (!token || !userAddress || pollMs <= 0) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    intervalRef.current = setInterval(() => {
+      fetchBalance();
+    }, pollMs);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [token?.processId, userAddress, fetchBalance, options?.pollMs]);
 
   const refetch = useCallback(() => {
     fetchBalance();
