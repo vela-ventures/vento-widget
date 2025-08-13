@@ -60,6 +60,7 @@ const TokenRow: React.FC<{
           <Input
             className="text-3xl bg-card pr-0 tabular-nums font-semibold border-none placeholder:text-secondary-foreground text-right ring-0 focus-visible:ring-0"
             inputMode="numeric"
+            type="number"
             value={amount}
             placeholder="0"
             onChange={(e) => onAmountChange?.(e.target.value)}

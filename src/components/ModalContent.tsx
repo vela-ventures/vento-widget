@@ -111,7 +111,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             label="Sell"
             token={sellToken}
             balance={sellBalance}
-            amount={sellAmount ? formatTokenAmount(sellAmount) : ""}
+            amount={sellAmount}
             usd={sellUsd}
             onAmountChange={setSellAmount}
             loadingBalance={!!sellBalanceLoading}
@@ -119,8 +119,8 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             onTokenClick={() => setSelecting("sell")}
           />
           <div className="flex items-center justify-center">
-            <div className="bg-background -m-5 rounded-[8px] w-10 h-10 p-2 z-10 cursor-pointer">
-              <ArrowDownUp className="size-6 stroke-[#25292D]" />
+            <div className="bg-secondary flex items-center justify-center -m-5 rounded-[8px] w-8 h-8 p-2 z-10 cursor-pointer">
+              <ArrowDownUp className="size-4 stroke-primary" />
             </div>
           </div>
           <TokenRow
