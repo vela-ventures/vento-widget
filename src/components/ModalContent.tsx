@@ -11,6 +11,10 @@ import { useSwapQuote } from "../hooks/useSwapQuote";
 import { useTokenPrices } from "../hooks/useTokenPrices";
 import { formatTokenAmount, formatUsd } from "../lib/format";
 import TokenSelector from "./TokenSelector";
+import ConfirmSwapModal from "./ConfirmSwapModal";
+import { message, createDataItemSigner } from "@permaweb/aoconnect";
+import { useVentoClient } from "../hooks/useVentoClient";
+import { convertToDenomination } from "../lib/math";
 
 export const ModalContent: React.FC<{ userAddress?: string }> = ({
   userAddress,
@@ -38,7 +42,11 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
 
   const [sellAmount, setSellAmount] = React.useState<string>("");
   const [selecting, setSelecting] = React.useState<null | "sell" | "buy">(null);
-  const { outputAmount: buyAmount, loading: quoteLoading } = useSwapQuote({
+  const {
+    outputAmount: buyAmount,
+    loading: quoteLoading,
+    bestRoute,
+  } = useSwapQuote({
     fromToken: sellToken,
     toToken: buyToken,
     amount: sellAmount,
@@ -73,6 +81,104 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
     const value = Number(buyAmount || "0") * price;
     return formatUsd(value);
   }, [pricesData, buyToken?.processId, buyAmount]);
+
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [isSwapLoading, setIsSwapLoading] = React.useState(false);
+  const [permaswapMessage, setPermaswapMessage] = React.useState<any | null>(
+    null
+  );
+  const [selectedRoute, setSelectedRoute] = React.useState<any | null>(null);
+  const { client } = useVentoClient();
+
+  const onSwapClick = React.useCallback(async () => {
+    if (!sellToken || !buyToken || !sellAmount || !buyAmount) return;
+    try {
+      setIsSwapLoading(true);
+      setSelectedRoute(bestRoute ?? null);
+      setConfirmOpen(true);
+      setPermaswapMessage(null);
+      if (bestRoute?.dex === "permaswap" && client) {
+        const rawAmount = convertToDenomination(
+          sellAmount,
+          sellToken.denomination
+        );
+        const minAmount = String(bestRoute.estimatedOutput ?? "0");
+        const prepared = await (client as any).prepareSwapMessage({
+          route: bestRoute,
+          fromTokenId: sellToken.processId,
+          toTokenId: buyToken.processId,
+          amount: rawAmount,
+          minAmount,
+          userAddress,
+        });
+        setPermaswapMessage(prepared);
+      }
+    } catch (e) {
+      console.error("Swap error:", e);
+    } finally {
+      setIsSwapLoading(false);
+    }
+  }, [
+    sellToken,
+    buyToken,
+    sellAmount,
+    buyAmount,
+    bestRoute,
+    client,
+    userAddress,
+  ]);
+
+  const handleConfirm = React.useCallback(async () => {
+    try {
+      if (
+        !sellToken ||
+        !buyToken ||
+        !sellAmount ||
+        !bestRoute ||
+        !client ||
+        !userAddress
+      )
+        return;
+      let messageId: string | undefined;
+      if (bestRoute?.dex === "botega") {
+        const rawAmount = convertToDenomination(
+          sellAmount,
+          sellToken.denomination
+        );
+        const minAmount = String(bestRoute.estimatedOutput ?? "0");
+        const result = await (client as any).executeSwap(
+          bestRoute,
+          sellToken.processId,
+          buyToken.processId,
+          rawAmount,
+          minAmount,
+          userAddress
+        );
+        messageId = result?.messageId;
+      } else if (bestRoute?.dex === "permaswap" && permaswapMessage) {
+        const res = await message({
+          process: permaswapMessage?.unsignedMessage.process,
+          signer: createDataItemSigner((window as any).arweaveWallet),
+          tags: permaswapMessage?.unsignedMessage.tags,
+        });
+        messageId = res;
+      }
+      if (messageId) {
+        // In a future step, we can show a status tracker
+        setConfirmOpen(false);
+      }
+    } catch (error) {
+      console.error("Swap error:", error);
+    }
+  }, [
+    sellToken,
+    buyToken,
+    sellAmount,
+    bestRoute,
+    client,
+    userAddress,
+    permaswapMessage,
+  ]);
 
   return (
     <Card className="w-[380px] backdrop-blur-md border-white/10 shadow-black/40">
@@ -146,6 +252,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
         <Button
           disabled={!sellAmount || Number(sellAmount) <= 0 || !buyAmount}
           className="mt-16 w-full h-11 rounded-xl"
+          onClick={onSwapClick}
         >
           {!sellAmount || Number(sellAmount) <= 0 || !buyAmount
             ? "Enter amounts"
@@ -153,7 +260,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
         </Button>
       </CardContent>
       {selecting && (
-        <div className="absolute inset-0 bg-neutral-950/95">
+        <div className="absolute inset-0 bg-card">
           <TokenSelector
             tokens={tokens}
             onBack={() => setSelecting(null)}
@@ -162,6 +269,24 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
               if (selecting === "buy") setBuyToken(t);
               setSelecting(null);
             }}
+          />
+        </div>
+      )}
+      {confirmOpen && (
+        <div className="absolute inset-0 bg-card">
+          <ConfirmSwapModal
+            onBack={() => setConfirmOpen(false)}
+            sellToken={sellToken}
+            buyToken={buyToken}
+            sellAmount={sellAmount}
+            buyAmount={buyAmount ?? "0"}
+            slippagePercent={1}
+            confirmLoading={
+              isSwapLoading ||
+              (bestRoute?.dex === "permaswap" && !permaswapMessage)
+            }
+            confirmDisabled={!bestRoute || !sellAmount || !buyAmount}
+            onConfirm={handleConfirm}
           />
         </div>
       )}

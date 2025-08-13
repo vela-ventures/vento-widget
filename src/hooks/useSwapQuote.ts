@@ -15,6 +15,8 @@ export interface UseSwapQuoteResult {
   loading: boolean;
   error: string | null;
   refetch: () => void;
+  bestRoute: any | null;
+  rawQuote: any | null;
 }
 
 export function useSwapQuote(
@@ -27,6 +29,8 @@ export function useSwapQuote(
   const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestIdRef = useRef(0);
+  const [bestRoute, setBestRoute] = useState<any | null>(null);
+  const [rawQuote, setRawQuote] = useState<any | null>(null);
 
   const valid =
     !!client &&
@@ -55,11 +59,11 @@ export function useSwapQuote(
         amount: rawAmount,
         userAddress: params.userAddress,
       });
-      console.log("result", result);
       if (myId !== requestIdRef.current) return;
-      const estimated = result?.bestRoute?.estimatedOutput as
-        | string
-        | undefined;
+      setRawQuote(result ?? null);
+      const route = result?.bestRoute ?? null;
+      setBestRoute(route);
+      const estimated = route?.estimatedOutput as string | undefined;
       if (typeof estimated === "string") {
         const human = convertFromDenomination(
           estimated,
@@ -73,6 +77,8 @@ export function useSwapQuote(
       if (requestIdRef.current !== myId) return;
       setError((err as Error).message ?? "Failed to get quote");
       setOutputAmount(null);
+      setBestRoute(null);
+      setRawQuote(null);
     } finally {
       if (requestIdRef.current === myId) setLoading(false);
     }
@@ -107,7 +113,7 @@ export function useSwapQuote(
   }, [fetchQuote]);
 
   return useMemo(
-    () => ({ outputAmount, loading, error, refetch }),
-    [outputAmount, loading, error, refetch]
+    () => ({ outputAmount, loading, error, refetch, bestRoute, rawQuote }),
+    [outputAmount, loading, error, refetch, bestRoute, rawQuote]
   );
 }
