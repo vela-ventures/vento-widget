@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { ChevronLeft, Clock, Wallet } from "lucide-react";
+import { ChevronLeft, Clock, Wallet, Loader2 } from "lucide-react";
 
 import React from "react";
 import type { TokenInfo } from "../types";
@@ -24,6 +24,10 @@ interface ConfirmSwapPageProps {
   confirmDisabled?: boolean;
   confirmLoading?: boolean;
   onConfirm: () => Promise<void> | void;
+  swapId?: string | null;
+  statusText?: string;
+  status?: string;
+  isCompleted?: boolean;
 }
 
 export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
@@ -45,7 +49,29 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
   confirmDisabled,
   confirmLoading,
   onConfirm,
+  swapId,
+  statusText,
+  status,
+  isCompleted,
 }) => {
+  const friendlyStatus = (() => {
+    switch (status) {
+      case "received":
+        return "Order received...";
+      case "sent":
+        return "Swap submitted...";
+      case "hop1-sent":
+        return "First hop sent...";
+      case "hop2-sent":
+        return "Second hop sent...";
+      case "completed":
+        return "Swap completed";
+      case "refunded":
+        return "Swap refunded";
+      default:
+        return statusText ?? (swapId ? "Processing..." : "");
+    }
+  })();
   return (
     <div className="p-6 bg-card relative z-20 h-full flex flex-col">
       <div className="flex items-center gap-2 mb-4">
@@ -103,7 +129,9 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
       </div>
 
       <div className="rounded-2xl border border-solid border-secondary px-5 py-4 mb-4">
-        <div className="text-sm text-secondary-foreground mb-2 text-left">Buy</div>
+        <div className="text-sm text-secondary-foreground mb-2 text-left">
+          Buy
+        </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="size-[30px] rounded-full bg-muted/30 grid place-items-center">
@@ -172,14 +200,31 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
           </div>
         )}
       </div>
+      <div className="mt-auto">
+        {swapId && (
+          <div className="mb-2 flex text-left items-center gap-2 text-sm text-secondary-foreground">
+            {!isCompleted && <Loader2 className="size-4 animate-spin" />}
+            <span>{friendlyStatus}</span>
+          </div>
+        )}
 
-      <Button
-        className="mt-auto w-full h-11 rounded-xl border-none"
-        disabled={!!confirmDisabled || confirmLoading}
-        onClick={() => onConfirm()}
-      >
-        {confirmLoading ? "Preparing…" : "Confirm and swap"}
-      </Button>
+        {swapId ? (
+          <Button
+            className="w-full h-11 rounded-xl border-none"
+            onClick={onBack}
+          >
+            {isCompleted ? "Close" : "Back"}
+          </Button>
+        ) : (
+          <Button
+            className="w-full h-11 rounded-xl border-none"
+            disabled={!!confirmDisabled || confirmLoading}
+            onClick={() => onConfirm()}
+          >
+            {confirmLoading ? "Preparing…" : "Confirm and swap"}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

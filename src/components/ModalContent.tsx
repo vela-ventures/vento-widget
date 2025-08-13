@@ -13,6 +13,7 @@ import { formatTokenAmount, formatUsd } from "../lib/format";
 import TokenSelector from "./TokenSelector";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import { useSwapFlow } from "../hooks/useSwapFlow";
+import { useSwapStatus } from "../hooks/useSwapStatus";
 
 export const ModalContent: React.FC<{ userAddress?: string }> = ({
   userAddress,
@@ -90,6 +91,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
     setPermaswapMessage,
     onSwapClick,
     handleConfirm,
+    swapId,
   } = useSwapFlow();
 
   const handleSwapClick = React.useCallback(() => {
@@ -114,6 +116,12 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
   const handleConfirmClick = React.useCallback(() => {
     handleConfirm({ sellToken, buyToken, sellAmount, bestRoute, userAddress });
   }, [sellToken, buyToken, sellAmount, bestRoute, userAddress, handleConfirm]);
+
+  const {
+    status,
+    loading: statusLoading,
+    isCompleted,
+  } = useSwapStatus(swapId ?? null, true);
 
   return (
     <Card className="w-[380px] backdrop-blur-md border-white/10 shadow-black/40">
@@ -228,6 +236,9 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
             }
             confirmDisabled={!bestRoute || !sellAmount || !buyAmount}
             onConfirm={handleConfirmClick}
+            swapId={swapId}
+            status={status?.status}
+            isCompleted={isCompleted}
           />
         </div>
       )}

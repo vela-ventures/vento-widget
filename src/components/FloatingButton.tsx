@@ -56,7 +56,7 @@ export const FloatingButton = React.forwardRef<
                 <path d="M6 6l12 12" />
               </svg>
             ) : (
-              <div className="flex items-center justify-center size-5">
+              <div className="flex items-center justify-center size-8">
                 <Logo />
               </div>
             )}

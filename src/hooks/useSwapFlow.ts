@@ -28,6 +28,7 @@ export function useSwapFlow() {
   const [isSwapLoading, setIsSwapLoading] = useState(false);
   const [permaswapMessage, setPermaswapMessage] = useState<any | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<any | null>(null);
+  const [swapId, setSwapId] = useState<string | null>(null);
 
   const onSwapClick = useCallback(
     async (params: SwapClickParams) => {
@@ -106,7 +107,7 @@ export function useSwapFlow() {
         messageId = res;
       }
       if (messageId) {
-        setConfirmOpen(false);
+        setSwapId(messageId);
       }
     },
     [client, permaswapMessage]
@@ -121,6 +122,7 @@ export function useSwapFlow() {
       selectedRoute,
       setSelectedRoute,
       setPermaswapMessage,
+      swapId,
       onSwapClick,
       handleConfirm,
     }),
@@ -129,6 +131,7 @@ export function useSwapFlow() {
       isSwapLoading,
       permaswapMessage,
       selectedRoute,
+      swapId,
       onSwapClick,
       handleConfirm,
     ]
