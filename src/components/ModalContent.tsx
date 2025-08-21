@@ -15,8 +15,9 @@ import ConfirmSwapModal from "./ConfirmSwapModal";
 import { useSwapFlow } from "../hooks/useSwapFlow";
 import { useSwapStatus } from "../hooks/useSwapStatus";
 
-export const ModalContent: React.FC<{ userAddress?: string }> = ({
+export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
   userAddress,
+  signer,
 }) => {
   const { tokens, error } = useTokens();
 
@@ -96,7 +97,7 @@ export const ModalContent: React.FC<{ userAddress?: string }> = ({
     onSwapClick,
     handleConfirm,
     swapId,
-  } = useSwapFlow();
+  } = useSwapFlow(signer);
 
   const handleSwapClick = React.useCallback(() => {
     onSwapClick({

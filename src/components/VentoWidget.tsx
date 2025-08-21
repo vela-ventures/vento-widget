@@ -18,6 +18,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
   onModalClose,
   theme = "dark",
   userAddress,
+  signer,
 }) => {
   const { isOpen, open, close, modalPosition, buttonRef } = useModal();
 
@@ -63,7 +64,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
             : undefined
         }
       >
-        <ModalContent userAddress={userAddress} />
+        <ModalContent userAddress={userAddress} signer={signer} />
       </Modal>
     </div>
   );

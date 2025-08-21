@@ -36,6 +36,7 @@ export interface VentoWidgetProps {
   onModalClose?: () => void;
   theme?: "light" | "dark";
   userAddress?: string;
+  signer?: any;
 }
 
 export interface TokenInfo {
