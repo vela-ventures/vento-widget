@@ -12,6 +12,7 @@ export interface FloatingButtonProps {
   disabled?: boolean;
   children?: React.ReactNode;
   isOpen?: boolean;
+  draggable?: boolean;
 }
 
 export interface ModalProps {
@@ -37,6 +38,7 @@ export interface VentoWidgetProps {
   theme?: "light" | "dark";
   userAddress?: string;
   signer?: any;
+  draggable?: boolean;
 }
 
 export interface TokenInfo {

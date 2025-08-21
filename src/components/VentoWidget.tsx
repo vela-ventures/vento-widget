@@ -19,6 +19,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
   theme = "dark",
   userAddress,
   signer,
+  draggable = true,
 }) => {
   const { isOpen, open, close, modalPosition, buttonRef } = useModal();
 
@@ -46,6 +47,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
         className={buttonClassName}
         disabled={disabled}
         isOpen={isOpen}
+        draggable={draggable}
       >
         {buttonContent}
       </FloatingButton>
