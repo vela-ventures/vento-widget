@@ -43,6 +43,7 @@ export function useSwapFlow(signer?: any) {
       if (!sellToken || !buyToken || !sellAmount || !buyAmount) return;
       try {
         setIsSwapLoading(true);
+        setSwapId(null);
         setSelectedRoute(bestRoute ?? null);
         setConfirmOpen(true);
         setPermaswapMessage(null);

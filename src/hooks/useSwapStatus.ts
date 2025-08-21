@@ -16,6 +16,12 @@ export function useSwapStatus(swapId: string | null, enabled = true) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
+    setStatus(undefined);
+    setError(null);
+    setLoading(false);
+  }, [swapId]);
+
+  useEffect(() => {
     if (!client || !swapId || !enabled) return;
 
     const fetchStatus = async () => {

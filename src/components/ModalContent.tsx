@@ -100,6 +100,7 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
   } = useSwapFlow(signer);
 
   const handleSwapClick = React.useCallback(() => {
+    setSelecting(null);
     onSwapClick({
       sellToken,
       buyToken,
@@ -207,7 +208,7 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
 
         <Button
           disabled={!sellAmount || Number(sellAmount) <= 0 || !buyAmount}
-          className="mt-16 w-full h-11 rounded-xl"
+          className="mt-16 w-full h-11 rounded-xl border-none"
           onClick={handleSwapClick}
         >
           {!sellAmount || Number(sellAmount) <= 0 || !buyAmount
