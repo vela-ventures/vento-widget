@@ -2,7 +2,13 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import TokenRow from "./TokenRow";
-import { ArrowDownUp, Clock, RefreshCcw, Settings } from "lucide-react";
+import {
+  ArrowDownUp,
+  Clock,
+  RefreshCcw,
+  Settings,
+  Loader2,
+} from "lucide-react";
 import { Logo } from "./Logo";
 import { useTokens } from "../hooks/useTokens";
 import { useTokenBalance } from "../hooks/useTokenBalance";
@@ -207,13 +213,21 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
         </div>
 
         <Button
-          disabled={!sellAmount || Number(sellAmount) <= 0 || !buyAmount}
+          disabled={
+            !sellAmount || Number(sellAmount) <= 0 || !buyAmount || quoteLoading
+          }
           className="mt-16 w-full h-11 rounded-xl border-none"
           onClick={handleSwapClick}
         >
-          {!sellAmount || Number(sellAmount) <= 0 || !buyAmount
-            ? "Enter amounts"
-            : "Swap"}
+          {quoteLoading ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="size-4 animate-spin" />
+            </span>
+          ) : !sellAmount || Number(sellAmount) <= 0 || !buyAmount ? (
+            "Enter amounts"
+          ) : (
+            "Swap"
+          )}
         </Button>
       </CardContent>
       {selecting && (
