@@ -193,12 +193,14 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
   }, [isCompleted]);
 
   return (
-    <Card className="w-[380px] backdrop-blur-md border-white/10 shadow-black/40">
+    <Card className="w-[380px] backdrop-blur-md border-border shadow-black/40">
       <CardHeader className="pb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Logo />
-            <CardTitle className="text-2xl text-white m-0">Vento</CardTitle>
+            <CardTitle className="text-2xl text-foreground m-0">
+              Vento
+            </CardTitle>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -210,14 +212,14 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
                 buyBalanceHook.refetch();
               }}
             >
-              <RefreshCcw className="size-4 stroke-[#E9ECEF]" />
+              <RefreshCcw className="size-4 stroke-secondary-foreground" />
             </Button>
             {/* <Button
               variant="secondary"
               size="icon"
               className="rounded-[8px] h-8 w-8"
             >
-              <Settings className="size-4 stroke-[#E9ECEF]" />
+              <Settings className="size-4 stroke-secondary-foreground" />
             </Button> */}
           </div>
         </div>
@@ -238,12 +240,12 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
           />
           <div className="flex items-center justify-center">
             <div
-              className="bg-secondary flex items-center justify-center -m-5 rounded-[8px] w-8 h-8 p-2 z-10 cursor-pointer"
+              className="bg-secondary text-primary flex items-center justify-center -m-5 rounded-[8px] w-8 h-8 p-2 z-10 cursor-pointer"
               onClick={flipTokens}
               role="button"
               aria-label="Flip tokens"
             >
-              <ArrowDownUp className="size-4 stroke-primary" />
+              <ArrowDownUp className="size-4 stroke-current" />
             </div>
           </div>
           <TokenRow

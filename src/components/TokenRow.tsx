@@ -27,7 +27,7 @@ const TokenRow: React.FC<{
   invalid = false,
 }) => {
   return (
-    <div className="rounded-2xl border border-solid border-secondary px-5 py-4">
+    <div className="rounded-2xl border border-solid border-secondary px-5 py-4 bg-card text-foreground">
       <div className="text-base text-secondary-foreground mb-2 text-left">
         {label}
       </div>
@@ -52,12 +52,14 @@ const TokenRow: React.FC<{
             onClick={onTokenClick}
             className="inline-flex p-0 bg-card items-center gap-1.5 h-9 text-sm cursor-pointer border-none hover:border-none focus-visible:outline-none"
           >
-            <span className="text-xl">{token?.ticker ?? ""}</span>
-            <ChevronDown className="size-[14px] stroke-current" />
+            <span className="text-xl text-foreground">
+              {token?.ticker ?? ""}
+            </span>
+            <ChevronDown className="size-[14px] stroke-secondary-foreground" />
           </button>
         </div>
         {amountLoading ? (
-          <div className="h-8 w-24 rounded bg-muted/30 animate-pulse" />
+          <div className="h-8 w-24 rounded bg-muted/60 animate-pulse" />
         ) : (
           <Input
             className={`text-3xl bg-card pr-0 tabular-nums font-semibold border-none text-right ring-0 focus-visible:ring-0 ${
@@ -77,7 +79,7 @@ const TokenRow: React.FC<{
         <div className="flex items-center gap-2">
           <Wallet className="size-4 stroke-current" />
           {loadingBalance ? (
-            <div className="h-4 w-14 rounded bg-muted/30 animate-pulse" />
+            <div className="h-4 w-14 rounded bg-muted/60 animate-pulse" />
           ) : (
             <span>{formatTokenAmount(balance) ?? "-"}</span>
           )}

@@ -35,7 +35,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
           className="rounded-[8px] h-8 w-8 bg-card"
           onClick={onBack}
         >
-          <ChevronLeft className="size-4 stroke-[#E9ECEF]" />
+          <ChevronLeft className="size-4 stroke-secondary-foreground" />
         </Button>
         <div className="text-base font-medium">Select token</div>
       </div>
@@ -73,7 +73,9 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
                 ) : null}
               </div>
               <div className="text-left">
-                <div className="text-sm font-medium leading-5">{t.ticker}</div>
+                <div className="text-sm font-medium leading-5 text-foreground">
+                  {t.ticker}
+                </div>
                 <div className="text-xs text-muted-foreground leading-4">
                   {t.name}
                 </div>

@@ -162,7 +162,7 @@ export const FloatingButton = React.forwardRef<
         disabled={disabled}
         className={`
           fixed z-50 h-12 w-12 rounded-full 
-          bg-card text-white border border-white/10 backdrop-blur-md
+          bg-card text-foreground border border-border backdrop-blur-md
           shadow-xl shadow-black/40
           transition-all duration-200 ease-in-out hover:scale-105 
           active:scale-95 
@@ -199,7 +199,7 @@ export const FloatingButton = React.forwardRef<
                 <path d="M6 6l12 12" />
               </svg>
             ) : (
-              <div className="flex items-center justify-center size-8">
+              <div className="flex items-center justify-center size-8 text-foreground">
                 <Logo />
               </div>
             )}

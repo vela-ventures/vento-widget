@@ -107,7 +107,7 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
           className="rounded-[8px] h-8 w-8 bg-card"
           onClick={onBack}
         >
-          <ChevronLeft className="size-4 stroke-[#E9ECEF]" />
+          <ChevronLeft className="size-4 stroke-secondary-foreground" />
         </Button>
         <div className="text-base font-medium">Confirm and swap</div>
       </div>
@@ -145,7 +145,7 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
           <div className="flex items-center gap-2">
             <Wallet className="size-4 stroke-current" />
             {sellBalanceLoading ? (
-              <div className="h-4 w-14 rounded bg-muted/30 animate-pulse" />
+              <div className="h-4 w-14 rounded bg-muted/60 animate-pulse" />
             ) : (
               <span>{formatTokenAmount(sellBalance) ?? "-"}</span>
             )}
@@ -187,7 +187,7 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
           <div className="flex items-center gap-2">
             <Wallet className="size-4 stroke-current" />
             {buyBalanceLoading ? (
-              <div className="h-4 w-14 rounded bg-muted/30 animate-pulse" />
+              <div className="h-4 w-14 rounded bg-muted/60 animate-pulse" />
             ) : (
               <span>{formatTokenAmount(buyBalance) ?? "-"}</span>
             )}
