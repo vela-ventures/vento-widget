@@ -168,6 +168,14 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
     handleConfirm({ sellToken, buyToken, sellAmount, bestRoute, userAddress });
   }, [sellToken, buyToken, sellAmount, bestRoute, userAddress, handleConfirm]);
 
+  const flipTokens = React.useCallback(() => {
+    setSellToken((prevSell) => {
+      const newSell = buyToken;
+      setBuyToken(prevSell);
+      return newSell;
+    });
+  }, [buyToken]);
+
   const {
     status,
     loading: statusLoading,
@@ -228,7 +236,12 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
             invalid={!isSellAmountValid}
           />
           <div className="flex items-center justify-center">
-            <div className="bg-secondary flex items-center justify-center -m-5 rounded-[8px] w-8 h-8 p-2 z-10 cursor-pointer">
+            <div
+              className="bg-secondary flex items-center justify-center -m-5 rounded-[8px] w-8 h-8 p-2 z-10 cursor-pointer"
+              onClick={flipTokens}
+              role="button"
+              aria-label="Flip tokens"
+            >
               <ArrowDownUp className="size-4 stroke-primary" />
             </div>
           </div>
@@ -319,8 +332,20 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
             tokens={tokens}
             onBack={() => setSelecting(null)}
             onSelect={(t) => {
-              if (selecting === "sell") setSellToken(t);
-              if (selecting === "buy") setBuyToken(t);
+              if (selecting === "sell") {
+                if (t.processId === buyToken?.processId) {
+                  flipTokens();
+                } else {
+                  setSellToken(t);
+                }
+              }
+              if (selecting === "buy") {
+                if (t.processId === sellToken?.processId) {
+                  flipTokens();
+                } else {
+                  setBuyToken(t);
+                }
+              }
               setSelecting(null);
             }}
           />
