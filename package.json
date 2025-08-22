@@ -1,7 +1,7 @@
 {
   "name": "@vela-ventures/vento-widget",
-  "version": "1.0.0",
-  "description": "React widget with floating button, modal, and compiled Tailwind CSS - works out of the box",
+  "version": "1.0.1",
+  "description": "Vento swap widget - works out of the box",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -41,6 +41,11 @@
     "typescript": "^5.3.2"
   },
   "keywords": [
+    "vento",
+    "vela-ventures",
+    "ao",
+    "arweave",
+    "swap",
     "react",
     "widget",
     "floating",
@@ -52,8 +57,23 @@
     "npm",
     "library"
   ],
-  "author": "Your Name",
+  "author": {
+    "name": "vela-ventures",
+    "email": "admin@vela.ventures",
+    "url": "https://vela.ventures/"
+  },
+  "contributors": [
+    "Artem Purundzhian <artempa1607@gmail.com>"
+  ],
   "license": "MIT",
+  "homepage": "https://github.com/vela-ventures/vento-widget",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vela-ventures/vento-widget.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vela-ventures/vento-widget/issues"
+  },
   "dependencies": {
     "@permaweb/aoconnect": "^0.0.85",
     "@radix-ui/react-accordion": "^1.2.12",
