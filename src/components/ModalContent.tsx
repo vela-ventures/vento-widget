@@ -236,7 +236,7 @@ export const ModalContent: React.FC<{ signer?: any }> = ({ signer }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Logo />
-            <CardTitle className="text-2xl text-foreground m-0">
+            <CardTitle className="text-2xl text-foreground m-0 font-maven">
               Vento
             </CardTitle>
           </div>

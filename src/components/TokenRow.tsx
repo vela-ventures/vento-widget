@@ -52,7 +52,7 @@ const TokenRow: React.FC<{
             onClick={onTokenClick}
             className="inline-flex p-0 bg-card items-center gap-1.5 h-9 text-sm cursor-pointer border-none hover:border-none focus-visible:outline-none"
           >
-            <span className="text-xl text-foreground">
+            <span className="text-xl text-foreground font-maven">
               {token?.ticker ?? ""}
             </span>
             <ChevronDown className="size-[14px] stroke-secondary-foreground" />

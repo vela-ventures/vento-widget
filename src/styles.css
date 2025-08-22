@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -32,6 +33,10 @@
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.vento-widget .font-maven {
+  font-family: "Maven Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", sans-serif;
 }
 
 .vento-widget *,
