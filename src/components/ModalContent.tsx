@@ -22,12 +22,9 @@ import { useSwapFlow } from "../hooks/useSwapFlow";
 import { useVentoClient } from "../hooks/useVentoClient";
 import { useSwapStatus } from "../hooks/useSwapStatus";
 
-export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
-  userAddress,
-  signer,
-}) => {
+export const ModalContent: React.FC<{ signer?: any }> = ({ signer }) => {
   const { tokens, error } = useTokens();
-  const { hasSigner } = useVentoClient(signer);
+  const { hasSigner, userAddress } = useVentoClient(signer);
 
   const [sellToken, setSellToken] = React.useState<TokenInfo | undefined>(
     undefined
@@ -41,10 +38,10 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens]);
 
-  const sellBalanceHook = useTokenBalance(sellToken, userAddress, {
+  const sellBalanceHook = useTokenBalance(sellToken, userAddress ?? undefined, {
     pollMs: 30000,
   });
-  const buyBalanceHook = useTokenBalance(buyToken, userAddress, {
+  const buyBalanceHook = useTokenBalance(buyToken, userAddress ?? undefined, {
     pollMs: 30000,
   });
   const sellBalance = sellBalanceHook.balance;
@@ -65,7 +62,7 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
     fromToken: sellToken,
     toToken: buyToken,
     amount: sellAmount,
-    userAddress,
+    userAddress: userAddress ?? undefined,
   });
 
   const processIds = React.useMemo(() => {
@@ -154,7 +151,7 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
       sellAmount,
       buyAmount,
       bestRoute,
-      userAddress,
+      userAddress: userAddress ?? undefined,
     });
   }, [
     sellToken,
@@ -167,7 +164,13 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
   ]);
 
   const handleConfirmClick = React.useCallback(() => {
-    handleConfirm({ sellToken, buyToken, sellAmount, bestRoute, userAddress });
+    handleConfirm({
+      sellToken,
+      buyToken,
+      sellAmount,
+      bestRoute,
+      userAddress: userAddress ?? undefined,
+    });
   }, [sellToken, buyToken, sellAmount, bestRoute, userAddress, handleConfirm]);
 
   const flipTokens = React.useCallback(() => {

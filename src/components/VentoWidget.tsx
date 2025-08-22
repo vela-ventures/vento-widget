@@ -17,7 +17,6 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
   onButtonClick,
   onModalClose,
   theme = "dark",
-  userAddress,
   signer,
   draggable = true,
 }) => {
@@ -66,7 +65,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
             : undefined
         }
       >
-        <ModalContent userAddress={userAddress} signer={signer} />
+        <ModalContent signer={signer} />
       </Modal>
     </div>
   );

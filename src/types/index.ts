@@ -36,7 +36,6 @@ export interface VentoWidgetProps {
   onButtonClick?: () => void;
   onModalClose?: () => void;
   theme?: "light" | "dark";
-  userAddress?: string;
   signer?: any;
   draggable?: boolean;
 }
