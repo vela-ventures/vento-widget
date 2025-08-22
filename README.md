@@ -11,7 +11,7 @@ React widget for token swapping on AO (Vento SDK). Draggable button, modal, toke
 ## Install
 
 ```bash
-npm install @vento/widget
+npm i @vela-ventures/vento-widget
 ```
 
 React 18+ is required.
