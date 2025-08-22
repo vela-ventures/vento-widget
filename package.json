@@ -1,5 +1,5 @@
 {
-  "name": "@vento/widget",
+  "name": "@vela-ventures/vento-widget",
   "version": "1.0.0",
   "description": "React widget with floating button, modal, and compiled Tailwind CSS - works out of the box",
   "type": "module",
