@@ -1,6 +1,6 @@
 {
   "name": "@vela-ventures/vento-widget",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vento swap widget - works out of the box",
   "type": "module",
   "main": "dist/index.cjs",
