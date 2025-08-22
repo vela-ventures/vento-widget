@@ -1,5 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { ModalPosition } from '../types';
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+} from "react";
+import { ModalPosition } from "../types";
 
 export function useModal(initialOpen = false) {
   const [isOpen, setIsOpen] = useState(initialOpen);
@@ -15,20 +21,20 @@ export function useModal(initialOpen = false) {
   }, []);
 
   const toggle = useCallback(() => {
-    setIsOpen(prev => !prev);
+    setIsOpen((prev) => !prev);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isOpen && buttonRef.current) {
       const buttonRect = buttonRef.current.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      
+
       const modalWidth = 384; // max-w-md (24rem = 384px)
       const modalHeight = 400; // max-h-96 (24rem = 384px, but we use 400 for safety)
-      
+
       let position: ModalPosition = {};
-      
+
       // Determine horizontal position
       if (buttonRect.right + modalWidth + 16 <= viewportWidth) {
         // Place to the right of button
@@ -40,7 +46,7 @@ export function useModal(initialOpen = false) {
         // Center horizontally with some margin
         position.left = `${Math.max(16, (viewportWidth - modalWidth) / 2)}px`;
       }
-      
+
       // Determine vertical position
       if (buttonRect.top + modalHeight + 16 <= viewportHeight) {
         // Place below button
@@ -52,7 +58,7 @@ export function useModal(initialOpen = false) {
         // Center vertically with some margin
         position.top = `${Math.max(16, (viewportHeight - modalHeight) / 2)}px`;
       }
-      
+
       setModalPosition(position);
     }
   }, [isOpen]);
@@ -60,14 +66,14 @@ export function useModal(initialOpen = false) {
   // Close modal on escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
+      if (event.key === "Escape" && isOpen) {
         close();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
     }
   }, [isOpen, close]);
 
