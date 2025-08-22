@@ -242,49 +242,18 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
         </div>
       </div>
       <div className="mt-auto">
-        {swapId && (
-          <div
-            className={`
-            mb-4 p-2.5 rounded-lg border border-solid transition-all duration-300 text-left
-            ${
-              status === "completed" ? "border-green-500/30 bg-green-500/5" : ""
-            }
-            ${status === "refunded" ? "border-red-500/30 bg-red-500/5" : ""}
-            ${
-              !isCompleted && status !== "refunded"
-                ? "border-muted bg-muted/5"
-                : "border-muted"
-            }
-          `}
-          >
-            <div className="flex items-center gap-3">
-              {getStatusIcon()}
-              <div className="flex-1">
-                <div
-                  className={`
-                  text-sm font-medium transition-colors duration-300 text-primary
-                  ${status === "completed" ? "text-green-600" : ""}
-                  ${status === "refunded" ? "text-red-600" : ""}
-                `}
-                >
-                  {friendlyStatus}
-                </div>
-                {swapId && (
-                  <div className="text-xs text-secondary-foreground mt-1">
-                    Swap ID: {swapId.slice(0, 8)}...{swapId.slice(-8)}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
         {swapId ? (
           <Button
             className="w-full h-11 rounded-xl border-none"
+            disabled={!isCompleted}
             onClick={onBack}
           >
-            {isCompleted ? "Close" : "Back"}
+            <span className="inline-flex items-center gap-2">
+              {!isCompleted && status !== "refunded" ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : null}
+              <span>{friendlyStatus}</span>
+            </span>
           </Button>
         ) : (
           <Button
