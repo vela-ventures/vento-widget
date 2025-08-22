@@ -19,6 +19,7 @@ import { formatTokenAmount, formatUsd } from "../lib/format";
 import TokenSelector from "./TokenSelector";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import { useSwapFlow } from "../hooks/useSwapFlow";
+import { useVentoClient } from "../hooks/useVentoClient";
 import { useSwapStatus } from "../hooks/useSwapStatus";
 
 export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
@@ -26,6 +27,7 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
   signer,
 }) => {
   const { tokens, error } = useTokens();
+  const { hasSigner } = useVentoClient(signer);
 
   const [sellToken, setSellToken] = React.useState<TokenInfo | undefined>(
     undefined
@@ -210,18 +212,17 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
             >
               <RefreshCcw className="size-4 stroke-[#E9ECEF]" />
             </Button>
-            <Button
+            {/* <Button
               variant="secondary"
               size="icon"
               className="rounded-[8px] h-8 w-8"
             >
               <Settings className="size-4 stroke-[#E9ECEF]" />
-            </Button>
+            </Button> */}
           </div>
         </div>
       </CardHeader>
-      <CardContent className="">
-        {error && <div className="mb-3 text-sm text-red-400">{error}</div>}
+      <CardContent className="relative">
         <div className="flex flex-col gap-1">
           <TokenRow
             label="Sell"
@@ -376,6 +377,14 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
             status={status?.status}
             isCompleted={isCompleted}
           />
+        </div>
+      )}
+
+      {!hasSigner && (
+        <div className="absolute backdrop-blur-sm inset-0 z-10 flex items-center justify-center bg-card/95">
+          <div className="text-base text-secondary-foreground">
+            Wallet is not connected.
+          </div>
         </div>
       )}
     </Card>

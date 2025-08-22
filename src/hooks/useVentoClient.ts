@@ -7,6 +7,7 @@ export interface UseVentoClientResult {
   client: any | null;
   loading: boolean;
   error: string | null;
+  hasSigner: boolean;
 }
 
 export function useVentoClient(
@@ -15,6 +16,7 @@ export function useVentoClient(
   const [client, setClient] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasSigner, setHasSigner] = useState<boolean>(false);
 
   useEffect(() => {
     try {
@@ -34,6 +36,7 @@ export function useVentoClient(
         : new VentoClient();
       setClient(sdkClient);
       setError(null);
+      setHasSigner(!!signer);
     } catch (err) {
       setError((err as Error).message ?? "Failed to initialize Vento SDK");
     } finally {
@@ -41,5 +44,8 @@ export function useVentoClient(
     }
   }, [externalSigner]);
 
-  return useMemo(() => ({ client, loading, error }), [client, loading, error]);
+  return useMemo(
+    () => ({ client, loading, error, hasSigner }),
+    [client, loading, error, hasSigner]
+  );
 }
