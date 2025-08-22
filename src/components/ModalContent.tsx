@@ -21,6 +21,12 @@ import ConfirmSwapModal from "./ConfirmSwapModal";
 import { useSwapFlow } from "../hooks/useSwapFlow";
 import { useVentoClient } from "../hooks/useVentoClient";
 import { useSwapStatus } from "../hooks/useSwapStatus";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "./ui/accordion";
 
 export const ModalContent: React.FC<{ signer?: any }> = ({ signer }) => {
   const { tokens, error } = useTokens();
@@ -195,6 +201,40 @@ export const ModalContent: React.FC<{ signer?: any }> = ({ signer }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCompleted]);
 
+  const exchangeText = React.useMemo(() => {
+    if (!sellToken || !buyToken) return undefined;
+    const s = Number(sellAmount || "0");
+    const b = Number(buyAmount || "0");
+    if (!Number.isFinite(s) || s <= 0 || !Number.isFinite(b) || b <= 0)
+      return undefined;
+    const rate = b / s;
+    return `1 ${sellToken.ticker} ≈ ${rate.toFixed(6)} ${buyToken.ticker}`;
+  }, [sellToken?.ticker, buyToken?.ticker, sellAmount, buyAmount]);
+
+  const swapFeeText = React.useMemo(() => {
+    const br: any = bestRoute as any;
+    if (!br) return undefined;
+    const candidates = [
+      br?.feeUsd,
+      br?.totalFeeUsd,
+      br?.feeUSD,
+      br?.fee,
+      br?.totalFee,
+    ];
+    for (const v of candidates) {
+      if (v == null) continue;
+      if (typeof v === "number" && Number.isFinite(v)) {
+        return `$${v.toFixed(2)}`;
+      }
+      if (typeof v === "string") {
+        const n = Number(v);
+        if (Number.isFinite(n)) return `$${n.toFixed(2)}`;
+        return v;
+      }
+    }
+    return undefined;
+  }, [bestRoute]);
+
   return (
     <Card className="w-[380px] backdrop-blur-md border-border shadow-black/40">
       <CardHeader className="pb-8">
@@ -263,13 +303,32 @@ export const ModalContent: React.FC<{ signer?: any }> = ({ signer }) => {
           />
         </div>
 
-        <div className="mt-4 flex items-center justify-between text-[13px] text-secondary-foreground">
-          <span>Average time to swap</span>
-          <div className="flex items-center gap-2">
-            <Clock className="size-[14px]" />
-            <span>1 min 32 sec</span>
-          </div>
-        </div>
+        <Accordion type="single" collapsible className="mt-2">
+          <AccordionItem value="info">
+            <AccordionTrigger
+              type="reset"
+              className="text-[13px] text-secondary-foreground bg-transparent no-underline p-0 outline-none border-none hover:no-underline m-0"
+            >
+              Details
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-1 text-sm text-secondary-foreground">
+                <div className="flex items-center justify-between">
+                  <span>Exchange rate</span>
+                  <span>{exchangeText ?? "-"}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Max. slippage</span>
+                  <span>1%</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Swap fee</span>
+                  <span>{swapFeeText ?? "-"}</span>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         {(() => {
           const invalidSell =

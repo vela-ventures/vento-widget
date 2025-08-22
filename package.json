@@ -56,8 +56,9 @@
   "license": "MIT",
   "dependencies": {
     "@permaweb/aoconnect": "^0.0.85",
-    "@vela-ventures/vento-sdk": "^1.0.7",
+    "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-slot": "^1.2.3",
+    "@vela-ventures/vento-sdk": "^1.0.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.536.0",
