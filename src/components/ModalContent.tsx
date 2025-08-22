@@ -56,6 +56,9 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
     outputAmount: buyAmount,
     loading: quoteLoading,
     bestRoute,
+    error: quoteError,
+    rawQuote,
+    refetch: refetchQuote,
   } = useSwapQuote({
     fromToken: sellToken,
     toToken: buyToken,
@@ -91,6 +94,31 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
     const value = Number(buyAmount || "0") * price;
     return formatUsd(value);
   }, [pricesData, buyToken?.processId, buyAmount]);
+
+  const noRoutes = React.useMemo(() => {
+    return (
+      !quoteLoading &&
+      !quoteError &&
+      !bestRoute &&
+      rawQuote?.totalRoutesFound === 0
+    );
+  }, [quoteLoading, quoteError, bestRoute, rawQuote?.totalRoutesFound]);
+
+  const estimateFailed = React.useMemo(() => {
+    return (
+      !quoteLoading &&
+      !quoteError &&
+      !bestRoute &&
+      (rawQuote?.totalRoutesFound ?? 0) > 0
+    );
+  }, [quoteLoading, quoteError, bestRoute, rawQuote?.totalRoutesFound]);
+
+  const buyDisplayAmount = React.useMemo(() => {
+    if (quoteLoading) return "";
+    if (quoteError || noRoutes || estimateFailed) return "";
+    if (!buyAmount) return "";
+    return formatTokenAmount(buyAmount ?? "0");
+  }, [quoteLoading, quoteError, noRoutes, estimateFailed, buyAmount]);
 
   const isSellAmountValid = React.useMemo(() => {
     if (sellAmount === "") return true;
@@ -209,7 +237,7 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
             token={buyToken}
             balance={buyBalance}
             amountLoading={quoteLoading}
-            amount={quoteLoading ? "" : formatTokenAmount(buyAmount ?? "0")}
+            amount={buyDisplayAmount}
             usd={buyUsd}
             loadingBalance={!!buyBalanceLoading}
             onTokenClick={() => setSelecting("buy")}
@@ -224,27 +252,66 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
           </div>
         </div>
 
-        <Button
-          disabled={
-            !sellAmount ||
-            Number(sellAmount) <= 0 ||
-            !buyAmount ||
+        {(() => {
+          const invalidSell =
+            !sellAmount || Number(sellAmount) <= 0 || !isSellAmountValid;
+          const noRoutesFound =
+            !quoteLoading &&
+            !quoteError &&
+            !bestRoute &&
+            rawQuote?.totalRoutesFound === 0;
+          const estimateFailed =
+            !quoteLoading &&
+            !bestRoute &&
+            (rawQuote?.totalRoutesFound ?? 0) > 0;
+          const hasValidQuote =
+            !!bestRoute &&
+            !quoteLoading &&
+            !quoteError &&
+            !noRoutesFound &&
+            !estimateFailed;
+
+          const disabled =
             quoteLoading ||
-            !isSellAmountValid
+            invalidSell ||
+            noRoutesFound ||
+            (!hasValidQuote && !quoteError && !estimateFailed);
+          const onClick =
+            quoteError || estimateFailed
+              ? () => refetchQuote()
+              : hasValidQuote
+              ? handleSwapClick
+              : undefined;
+
+          let label: React.ReactNode;
+          if (quoteLoading) {
+            label = (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="size-4 animate-spin" />
+              </span>
+            );
+          } else if (invalidSell) {
+            label = "Enter amounts";
+          } else if (quoteError || estimateFailed) {
+            label = "Retry";
+          } else if (noRoutesFound) {
+            label = "No routes found";
+          } else if (hasValidQuote) {
+            label = "Swap";
+          } else {
+            label = "Enter amounts";
           }
-          className="mt-16 w-full h-11 rounded-xl border-none"
-          onClick={handleSwapClick}
-        >
-          {quoteLoading ? (
-            <span className="inline-flex items-center gap-2">
-              <Loader2 className="size-4 animate-spin" />
-            </span>
-          ) : !sellAmount || Number(sellAmount) <= 0 || !buyAmount ? (
-            "Enter amounts"
-          ) : (
-            "Swap"
-          )}
-        </Button>
+
+          return (
+            <Button
+              disabled={disabled}
+              className="mt-6 w-full h-11 rounded-xl border-none"
+              onClick={onClick}
+            >
+              {label}
+            </Button>
+          );
+        })()}
       </CardContent>
       {selecting && (
         <div className="absolute inset-0 bg-card">
