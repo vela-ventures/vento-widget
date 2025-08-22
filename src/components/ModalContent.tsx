@@ -16,6 +16,7 @@ import type { TokenInfo } from "../types";
 import { useSwapQuote } from "../hooks/useSwapQuote";
 import { useTokenPrices } from "../hooks/useTokenPrices";
 import { formatTokenAmount, formatUsd } from "../lib/format";
+import { convertFromDenomination } from "../lib/math";
 import TokenSelector from "./TokenSelector";
 import ConfirmSwapModal from "./ConfirmSwapModal";
 import { useSwapFlow } from "../hooks/useSwapFlow";
@@ -212,28 +213,22 @@ export const ModalContent: React.FC<{ signer?: any }> = ({ signer }) => {
   }, [sellToken?.ticker, buyToken?.ticker, sellAmount, buyAmount]);
 
   const swapFeeText = React.useMemo(() => {
-    const br: any = bestRoute as any;
-    if (!br) return undefined;
-    const candidates = [
-      br?.feeUsd,
-      br?.totalFeeUsd,
-      br?.feeUSD,
-      br?.fee,
-      br?.totalFee,
-    ];
-    for (const v of candidates) {
-      if (v == null) continue;
-      if (typeof v === "number" && Number.isFinite(v)) {
-        return `$${v.toFixed(2)}`;
-      }
-      if (typeof v === "string") {
-        const n = Number(v);
-        if (Number.isFinite(n)) return `$${n.toFixed(2)}`;
-        return v;
-      }
-    }
-    return undefined;
-  }, [bestRoute]);
+    const route: any = bestRoute as any;
+    if (!route || !sellToken || !buyToken) return undefined;
+    const estimatedFeeRaw: string | undefined = route.estimatedFee;
+    if (!estimatedFeeRaw) return undefined;
+    const isPermaswap = route?.dex === "permaswap";
+    const token = isPermaswap ? buyToken : sellToken;
+    const human = convertFromDenomination(estimatedFeeRaw, token.denomination);
+    if (!human) return undefined;
+    return `${formatTokenAmount(human)} ${token.ticker}`;
+  }, [
+    bestRoute,
+    sellToken?.denomination,
+    sellToken?.ticker,
+    buyToken?.denomination,
+    buyToken?.ticker,
+  ]);
 
   return (
     <Card className="w-[380px] backdrop-blur-md border-border shadow-black/40">
