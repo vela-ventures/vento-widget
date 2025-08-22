@@ -92,6 +92,17 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
     return formatUsd(value);
   }, [pricesData, buyToken?.processId, buyAmount]);
 
+  const isSellAmountValid = React.useMemo(() => {
+    if (sellAmount === "") return true;
+    const amtNum = Number(sellAmount);
+    if (!Number.isFinite(amtNum) || amtNum < 0) return false;
+    const bal = sellBalance;
+    if (bal == null || bal === "") return true;
+    const balNum = Number(bal);
+    if (!Number.isFinite(balNum)) return true;
+    return amtNum <= balNum;
+  }, [sellBalance, sellAmount]);
+
   const {
     confirmOpen,
     setConfirmOpen,
@@ -186,6 +197,7 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
             loadingBalance={!!sellBalanceLoading}
             amountLoading={false}
             onTokenClick={() => setSelecting("sell")}
+            invalid={!isSellAmountValid}
           />
           <div className="flex items-center justify-center">
             <div className="bg-secondary flex items-center justify-center -m-5 rounded-[8px] w-8 h-8 p-2 z-10 cursor-pointer">
@@ -214,7 +226,11 @@ export const ModalContent: React.FC<{ userAddress?: string; signer?: any }> = ({
 
         <Button
           disabled={
-            !sellAmount || Number(sellAmount) <= 0 || !buyAmount || quoteLoading
+            !sellAmount ||
+            Number(sellAmount) <= 0 ||
+            !buyAmount ||
+            quoteLoading ||
+            !isSellAmountValid
           }
           className="mt-16 w-full h-11 rounded-xl border-none"
           onClick={handleSwapClick}

@@ -13,6 +13,7 @@ const TokenRow: React.FC<{
   loadingBalance?: boolean;
   amountLoading?: boolean;
   onTokenClick?: () => void;
+  invalid?: boolean;
 }> = ({
   label,
   token,
@@ -23,6 +24,7 @@ const TokenRow: React.FC<{
   loadingBalance = false,
   amountLoading = false,
   onTokenClick,
+  invalid = false,
 }) => {
   return (
     <div className="rounded-2xl border border-solid border-secondary px-5 py-4">
@@ -58,7 +60,11 @@ const TokenRow: React.FC<{
           <div className="h-8 w-24 rounded bg-muted/30 animate-pulse" />
         ) : (
           <Input
-            className="text-3xl bg-card pr-0 tabular-nums font-semibold border-none placeholder:text-secondary-foreground text-right ring-0 focus-visible:ring-0"
+            className={`text-3xl bg-card pr-0 tabular-nums font-semibold border-none text-right ring-0 focus-visible:ring-0 ${
+              invalid
+                ? "text-red-500 placeholder:text-red-400"
+                : "placeholder:text-secondary-foreground"
+            }`}
             inputMode="numeric"
             type="number"
             value={amount}
