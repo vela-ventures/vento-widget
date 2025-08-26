@@ -232,7 +232,7 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
 
   return (
     <Card className="w-[380px] backdrop-blur-md border-border shadow-black/40">
-      <CardHeader className="pb-8">
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Logo />
@@ -414,7 +414,10 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
       {confirmOpen && (
         <div className="absolute inset-0 bg-card">
           <ConfirmSwapModal
-            onBack={() => setConfirmOpen(false)}
+            onBack={() => {
+              setConfirmOpen(false);
+              setSellAmount("");
+            }}
             sellToken={sellToken}
             buyToken={buyToken}
             sellAmount={sellAmount}
