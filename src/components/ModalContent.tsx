@@ -29,9 +29,9 @@ import {
   AccordionContent,
 } from "./ui/accordion";
 
-export const ModalContent: React.FC<{ signer?: any }> = ({ signer }) => {
+export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
   const { tokens, error } = useTokens();
-  const { hasSigner, userAddress } = useVentoClient(signer);
+  const { hasSigner, userAddress } = useVentoClient(wallet);
 
   const [sellToken, setSellToken] = React.useState<TokenInfo | undefined>(
     undefined
@@ -148,7 +148,7 @@ export const ModalContent: React.FC<{ signer?: any }> = ({ signer }) => {
     onSwapClick,
     handleConfirm,
     swapId,
-  } = useSwapFlow(signer);
+  } = useSwapFlow(wallet);
 
   const handleSwapClick = React.useCallback(() => {
     setSelecting(null);

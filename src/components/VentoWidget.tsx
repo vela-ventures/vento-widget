@@ -17,7 +17,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
   onButtonClick,
   onModalClose,
   theme = "dark",
-  signer,
+  wallet,
   draggable = true,
 }) => {
   const { isOpen, open, close, modalPosition, buttonRef } = useModal();
@@ -65,7 +65,7 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
             : undefined
         }
       >
-        <ModalContent signer={signer} />
+        <ModalContent wallet={wallet} />
       </Modal>
     </div>
   );

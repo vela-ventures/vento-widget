@@ -12,7 +12,7 @@ export interface UseVentoClientResult {
 }
 
 export function useVentoClient(
-  externalSigner?: VentoWidgetProps["signer"]
+  externalSigner?: VentoWidgetProps["wallet"]
 ): UseVentoClientResult {
   const [client, setClient] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

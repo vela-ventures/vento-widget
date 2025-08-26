@@ -21,8 +21,8 @@ export interface ConfirmParams {
   userAddress?: string;
 }
 
-export function useSwapFlow(signer?: any) {
-  const { client } = useVentoClient(signer);
+export function useSwapFlow(wallet?: any) {
+  const { client } = useVentoClient(wallet);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isSwapLoading, setIsSwapLoading] = useState(false);

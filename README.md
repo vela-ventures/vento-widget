@@ -28,12 +28,12 @@ export default function App() {
 
 The widget uses `window.arweaveWallet.getActiveAddress()`. If unavailable, it shows a "Wallet is not connected" overlay.
 
-### Passing a signer (optional)
+### Passing a wallet (optional)
 
-If you want to provide a signer explicitly (e.g., injected or custom wallet), pass it to the widget. The widget will wrap it with `createDataItemSigner` internally.
+If you want to provide a wallet explicitly (e.g., injected or custom), pass it to the widget. The widget will wrap it with `createDataItemSigner` internally.
 
 ```tsx
-<VentoWidget signer={window.arweaveWallet} />
+<VentoWidget wallet={window.arweaveWallet} />
 ```
 
 ## Props (most-used)
@@ -50,7 +50,7 @@ interface VentoWidgetProps {
   theme?: "light" | "dark"; // default: "dark"
   position?: ModalPosition; // button position
   draggable?: boolean; // default: true
-  signer?: any; // optional
+  wallet?: any; // optional
   // More: buttonClassName, modalClassName, showBackdrop, buttonContent, onButtonClick, onModalClose
 }
 ```
