@@ -41,7 +41,7 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
   );
   React.useEffect(() => {
     if (!sellToken && tokens[0]) setSellToken(tokens[0]);
-    if (!buyToken && tokens[2]) setBuyToken(tokens[2]);
+    if (!buyToken && tokens[1]) setBuyToken(tokens[1]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens]);
 
@@ -426,6 +426,7 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
             sellUsd={sellUsd}
             buyUsd={buyUsd}
             slippagePercent={1}
+            swapFeeText={swapFeeText}
             confirmLoading={
               isSwapLoading ||
               (bestRoute?.dex === "permaswap" && !permaswapMessage)

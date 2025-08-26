@@ -1,20 +1,6 @@
 import { Button } from "./ui/button";
-import {
-  ChevronLeft,
-  Clock,
-  Wallet,
-  Loader2,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
-
+import { ChevronLeft, Wallet, Loader2 } from "lucide-react";
 import React from "react";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "./ui/accordion";
 import type { TokenInfo } from "../types";
 import { formatTokenAmount, formatUsd } from "../lib/format";
 
@@ -32,7 +18,6 @@ interface ConfirmSwapPageProps {
   buyUsd?: string;
   exchangeText?: string;
   slippagePercent?: number;
-  minReceivedText?: string;
   swapFeeText?: string;
   confirmDisabled?: boolean;
   confirmLoading?: boolean;
@@ -57,7 +42,6 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
   buyUsd,
   exchangeText,
   slippagePercent = 1,
-  minReceivedText,
   swapFeeText,
   confirmDisabled,
   confirmLoading,
@@ -86,24 +70,6 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
     }
   })();
 
-  const getStatusIcon = () => {
-    if (status === "completed") {
-      return <CheckCircle className="size-4 text-green-500" />;
-    }
-    if (status === "refunded") {
-      return <XCircle className="size-4 text-red-500" />;
-    }
-    if (swapId && !isCompleted) {
-      return (
-        <div className="relative">
-          <Loader2 className="size-4 animate-spin text-primary" />
-          <div className="absolute inset-0 size-4 border border-primary/30 rounded-full animate-pulse" />
-        </div>
-      );
-    }
-    return null;
-  };
-
   const computedExchangeText = React.useMemo(() => {
     if (!sellToken || !buyToken) return undefined;
     const s = Number(sellAmount || "0");
@@ -113,11 +79,6 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
     const rate = b / s;
     return `1 ${sellToken.ticker} ≈ ${rate.toFixed(6)} ${buyToken.ticker}`;
   }, [sellToken?.ticker, buyToken?.ticker, sellAmount, buyAmount]);
-
-  const computedSwapFeeText = React.useMemo(() => {
-    // Not available here unless passed; fallback to prop
-    return swapFeeText;
-  }, [swapFeeText]);
 
   return (
     <div className="p-6 bg-card relative z-20 h-full flex flex-col">
@@ -227,16 +188,10 @@ export const ConfirmSwapModal: React.FC<ConfirmSwapPageProps> = ({
             <span>Max. slippage</span>
             <span>{slippagePercent}%</span>
           </div>
-          {minReceivedText && (
-            <div className="flex items-center justify-between">
-              <span>Min. received</span>
-              <span>{minReceivedText}</span>
-            </div>
-          )}
-          {(computedSwapFeeText ?? swapFeeText) && (
+          {swapFeeText && (
             <div className="flex items-center justify-between">
               <span>Swap fee</span>
-              <span>{computedSwapFeeText ?? swapFeeText}</span>
+              <span>{swapFeeText}</span>
             </div>
           )}
         </div>
