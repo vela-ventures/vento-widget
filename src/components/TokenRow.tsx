@@ -59,7 +59,7 @@ const TokenRow: React.FC<{
           </button>
         </div>
         {amountLoading ? (
-          <div className="h-8 w-24 rounded bg-muted/60 animate-pulse" />
+          <div className="h-8 my-2 w-24 rounded bg-muted/60 animate-pulse" />
         ) : (
           <Input
             className={`text-3xl bg-card pr-0 tabular-nums font-semibold border-none text-right ring-0 focus-visible:ring-0 ${

@@ -225,6 +225,35 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
     }
     const route: any = bestRoute as any;
     if (!route || !sellToken || !buyToken) return undefined;
+    if (route?.dex === "botega" && Number(route?.hops) >= 2) {
+      const intermediateToken = tokens.find(
+        (t) => t.processId === route?.intermediateTokenId
+      );
+      const parts: string[] = [];
+      const interFeeRaw: string | undefined = route?.intermediateEstimatedFee;
+      if (interFeeRaw) {
+        const interHuman = convertFromDenomination(
+          interFeeRaw,
+          sellToken.denomination
+        );
+        if (interHuman) {
+          parts.push(`${formatTokenAmount(interHuman)} ${sellToken.ticker}`);
+        }
+      }
+      const estFeeRaw: string | undefined = route?.estimatedFee;
+      if (estFeeRaw && intermediateToken) {
+        const estHuman = convertFromDenomination(
+          estFeeRaw,
+          intermediateToken.denomination
+        );
+        if (estHuman) {
+          parts.push(
+            `${formatTokenAmount(estHuman)} ${intermediateToken.ticker}`
+          );
+        }
+      }
+      if (parts.length > 0) return parts.join(" + ");
+    }
     const estimatedFeeRaw: string | undefined = route.estimatedFee;
     if (!estimatedFeeRaw) return undefined;
     const isPermaswap = route?.dex === "permaswap";
@@ -243,6 +272,7 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
     sellToken?.ticker,
     buyToken?.denomination,
     buyToken?.ticker,
+    tokens,
   ]);
 
   return (
