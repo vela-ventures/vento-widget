@@ -1,6 +1,6 @@
 {
   "name": "@vela-ventures/vento-widget",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Vento swap widget - works out of the box",
   "type": "module",
   "main": "dist/index.cjs",
@@ -22,8 +22,10 @@
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "@permaweb/aoconnect": "^0.0.85",
+    "@vela-ventures/vento-sdk": "^1.0.7"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
@@ -75,10 +77,8 @@
     "url": "https://github.com/vela-ventures/vento-widget/issues"
   },
   "dependencies": {
-    "@permaweb/aoconnect": "^0.0.85",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-slot": "^1.2.3",
-    "@vela-ventures/vento-sdk": "^1.0.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.536.0",

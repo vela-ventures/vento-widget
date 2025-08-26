@@ -56,6 +56,8 @@ export default [
     external: [
       "react",
       "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
       "@vela-ventures/vento-sdk",
       "@permaweb/aoconnect",
     ],
