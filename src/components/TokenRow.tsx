@@ -84,7 +84,11 @@ const TokenRow: React.FC<{
             <span>{formatTokenAmount(balance) ?? "-"}</span>
           )}
         </div>
-        <span>≈ {usd}</span>
+        {amountLoading ? (
+          <div className="h-4 my-0.5 w-12 rounded bg-muted/60 animate-pulse" />
+        ) : (
+          <span>≈ {usd}</span>
+        )}
       </div>
     </div>
   );
