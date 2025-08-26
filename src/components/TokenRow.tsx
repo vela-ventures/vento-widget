@@ -76,7 +76,16 @@ const TokenRow: React.FC<{
         )}
       </div>
       <div className="mt-3 flex items-center justify-between text-sm text-secondary-foreground">
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2 hover:cursor-pointer"
+          onClick={() => {
+            if (!loadingBalance && balance && onAmountChange) {
+              onAmountChange(balance);
+            }
+          }}
+          role="button"
+          aria-label="Use max balance"
+        >
           <Wallet className="size-4 stroke-current" />
           {loadingBalance ? (
             <div className="h-4 w-14 rounded bg-muted/60 animate-pulse" />
