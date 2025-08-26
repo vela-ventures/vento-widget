@@ -213,6 +213,16 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
   }, [sellToken?.ticker, buyToken?.ticker, sellAmount, buyAmount]);
 
   const swapFeeText = React.useMemo(() => {
+    if (
+      !sellAmount ||
+      Number(sellAmount) <= 0 ||
+      quoteLoading ||
+      quoteError ||
+      noRoutes ||
+      estimateFailed
+    ) {
+      return undefined;
+    }
     const route: any = bestRoute as any;
     if (!route || !sellToken || !buyToken) return undefined;
     const estimatedFeeRaw: string | undefined = route.estimatedFee;
@@ -223,6 +233,11 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
     if (!human) return undefined;
     return `${formatTokenAmount(human)} ${token.ticker}`;
   }, [
+    sellAmount,
+    quoteLoading,
+    quoteError,
+    noRoutes,
+    estimateFailed,
     bestRoute,
     sellToken?.denomination,
     sellToken?.ticker,
@@ -416,7 +431,9 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
           <ConfirmSwapModal
             onBack={() => {
               setConfirmOpen(false);
-              setSellAmount("");
+              if (isCompleted) {
+                setSellAmount("");
+              }
             }}
             sellToken={sellToken}
             buyToken={buyToken}
