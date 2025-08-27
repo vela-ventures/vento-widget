@@ -1,4 +1,5 @@
 import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FloatingButton } from "./FloatingButton";
 import { Modal } from "./Modal";
 import { useModal } from "../hooks/useModal";
@@ -25,6 +26,19 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
 }) => {
   const { isOpen, open, close, modalPosition, buttonRef } = useModal();
 
+  const queryClient = React.useMemo(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: 1,
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+    []
+  );
+
   const handleButtonClick = () => {
     if (isOpen) {
       close();
@@ -41,41 +55,43 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
   };
 
   return (
-    <div className={`vento-widget ${theme === "dark" ? "dark" : ""}`}>
-      <FloatingButton
-        ref={buttonRef}
-        onClick={handleButtonClick}
-        position={position}
-        className={buttonClassName}
-        disabled={disabled}
-        isOpen={isOpen}
-        draggable={draggable}
-      >
-        {buttonContent}
-      </FloatingButton>
-
-      <Modal
-        isOpen={isOpen}
-        onClose={handleModalClose}
-        position={modalPosition}
-        backdrop={showBackdrop}
-        className={modalClassName}
-        container={
-          typeof document !== "undefined"
-            ? (document.getElementsByClassName(
-                "vento-widget"
-              )[0] as HTMLElement)
-            : undefined
-        }
-      >
-        <ModalContent
-          wallet={wallet}
-          isWalletConnected={isWalletConnected}
-          walletAddress={walletAddress}
-          onConnectWallet={onConnectWallet}
+    <QueryClientProvider client={queryClient}>
+      <div className={`vento-widget ${theme === "dark" ? "dark" : ""}`}>
+        <FloatingButton
+          ref={buttonRef}
+          onClick={handleButtonClick}
+          position={position}
+          className={buttonClassName}
+          disabled={disabled}
           isOpen={isOpen}
-        />
-      </Modal>
-    </div>
+          draggable={draggable}
+        >
+          {buttonContent}
+        </FloatingButton>
+
+        <Modal
+          isOpen={isOpen}
+          onClose={handleModalClose}
+          position={modalPosition}
+          backdrop={showBackdrop}
+          className={modalClassName}
+          container={
+            typeof document !== "undefined"
+              ? (document.getElementsByClassName(
+                  "vento-widget"
+                )[0] as HTMLElement)
+              : undefined
+          }
+        >
+          <ModalContent
+            wallet={wallet}
+            isWalletConnected={isWalletConnected}
+            walletAddress={walletAddress}
+            onConnectWallet={onConnectWallet}
+            isOpen={isOpen}
+          />
+        </Modal>
+      </div>
+    </QueryClientProvider>
   );
 };

@@ -22,10 +22,11 @@
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0",
     "@permaweb/aoconnect": "^0.0.85",
-    "@vela-ventures/vento-sdk": "^1.0.7"
+    "@vela-ventures/vento-sdk": "^1.0.7",
+    "@tanstack/react-query": "^5.0.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
@@ -79,6 +80,7 @@
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-slot": "^1.2.3",
+    "@tanstack/react-query": "^5.85.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.536.0",

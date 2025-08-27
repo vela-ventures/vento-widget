@@ -1,7 +1,40 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { TokenInfo } from "../types";
 import { convertFromDenomination } from "../lib/math";
 import { dryrun } from "@permaweb/aoconnect";
+
+const fetchTokenBalance = async (
+  processId: string,
+  userAddress: string,
+  denomination: number
+): Promise<string | undefined> => {
+  const result = await dryrun({
+    process: processId,
+    tags: [
+      { name: "Action", value: "Balance" },
+      { name: "Recipient", value: userAddress },
+    ],
+  });
+
+  const msg = result?.Messages?.[0];
+  let raw = 0;
+  if (msg?.Data != null) {
+    const d: string = msg.Data as string;
+    const s = d.startsWith('"') && d.endsWith('"') ? d.slice(1, -1) : d;
+    raw = Number(s);
+  }
+  if (!Number.isFinite(raw)) {
+    const tagVal = msg?.Tags?.find(
+      (t: { name: string; value: string }) => t.name === "Balance"
+    )?.value;
+    raw = Number(tagVal ?? 0);
+  }
+
+  if (!Number.isFinite(raw)) return undefined;
+
+  const human = convertFromDenomination(raw, denomination);
+  return human;
+};
 
 interface UseTokenBalanceResult {
   balance: string | undefined;
@@ -15,89 +48,34 @@ export function useTokenBalance(
   userAddress: string | undefined,
   options?: { pollMs?: number }
 ): UseTokenBalanceResult {
-  const [balance, setBalance] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const {
+    data: balance,
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["token-balance", token?.processId, userAddress],
+    queryFn: () => {
+      if (!token || !userAddress)
+        throw new Error("Missing token or user address");
+      return fetchTokenBalance(
+        token.processId,
+        userAddress,
+        token.denomination
+      );
+    },
+    enabled: !!token && !!userAddress,
+    refetchInterval: options?.pollMs ?? 0,
+    staleTime: 10000, // 10 seconds
+    refetchOnWindowFocus: false,
+    retry: 1,
+    gcTime: 300000, // 5 minutes
+  });
 
-  const fetchBalance = useCallback(async () => {
-    if (!token || !userAddress) return;
-    if (abortRef.current) abortRef.current.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-    setLoading(true);
-    setError(null);
-
-    try {
-      const result = await dryrun({
-        process: token.processId,
-        tags: [
-          { name: "Action", value: "Balance" },
-          { name: "Recipient", value: userAddress },
-        ],
-      });
-
-      const msg = result?.Messages?.[0];
-      let raw = 0;
-      if (msg?.Data != null) {
-        const d: string = msg.Data as string;
-        const s = d.startsWith('"') && d.endsWith('"') ? d.slice(1, -1) : d;
-        raw = Number(s);
-      }
-      if (!Number.isFinite(raw)) {
-        const tagVal = msg?.Tags?.find(
-          (t: { name: string; value: string }) => t.name === "Balance"
-        )?.value;
-        raw = Number(tagVal ?? 0);
-      }
-      const human = convertFromDenomination(raw, token.denomination);
-      setBalance(human);
-    } catch (err) {
-      setError((err as Error).message ?? "Failed to fetch balance");
-      setBalance(undefined);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, userAddress]);
-
-  useEffect(() => {
-    fetchBalance();
-    return () => abortRef.current?.abort();
-  }, [fetchBalance]);
-
-  useEffect(() => {
-    const pollMs = options?.pollMs ?? 0;
-    if (!token || !userAddress || pollMs <= 0) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      return;
-    }
-
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    intervalRef.current = setInterval(() => {
-      fetchBalance();
-    }, pollMs);
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [token?.processId, userAddress, fetchBalance, options?.pollMs]);
-
-  const refetch = useCallback(() => {
-    fetchBalance();
-  }, [fetchBalance]);
-
-  return useMemo(
-    () => ({ balance, loading, error, refetch }),
-    [balance, loading, error, refetch]
-  );
+  return {
+    balance,
+    loading,
+    error: error ? (error as Error).message : null,
+    refetch,
+  };
 }
