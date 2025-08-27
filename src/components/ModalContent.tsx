@@ -105,18 +105,20 @@ export const ModalContent: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens]);
 
+  const balancePollMs = isOpen ? 30000 : 120000;
+
   const sellBalanceHook = useTokenBalance(
     sellToken,
     finalUserAddress ?? undefined,
     {
-      pollMs: 30000,
+      pollMs: balancePollMs,
     }
   );
   const buyBalanceHook = useTokenBalance(
     buyToken,
     finalUserAddress ?? undefined,
     {
-      pollMs: 30000,
+      pollMs: balancePollMs,
     }
   );
   const sellBalance = sellBalanceHook.balance;
@@ -147,8 +149,12 @@ export const ModalContent: React.FC<{
     if (buyToken?.processId) ids.add(buyToken.processId);
     return Array.from(ids);
   }, [sellToken?.processId, buyToken?.processId]);
-  const { data: pricesData, loading: pricesLoading } =
-    useTokenPrices(processIds);
+  const pricesPollMs = isOpen ? 60000 : 90000;
+
+  const { data: pricesData, loading: pricesLoading } = useTokenPrices(
+    processIds,
+    pricesPollMs
+  );
 
   const sellUsd = React.useMemo(() => {
     if (!pricesData || !sellToken) return "$0.00";
