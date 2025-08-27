@@ -36,6 +36,28 @@ If you want to provide a wallet explicitly (e.g., injected or custom), pass it t
 <VentoWidget wallet={window.arweaveWallet} />
 ```
 
+### Controlled wallet state (optional)
+
+For better wallet connection management, you can control the wallet state explicitly:
+
+```tsx
+import { ConnectButton, useConnection } from "@arweave-wallet-kit/react";
+
+function App() {
+  const { connected, connect, disconnect } = useConnection();
+
+  return (
+    <>
+      <VentoWidget
+        theme="dark"
+        onConnectWallet={connect}
+        isWalletConnected={connected}
+      />
+    </>
+  );
+}
+```
+
 ## Props (most-used)
 
 ```ts
@@ -51,6 +73,9 @@ interface VentoWidgetProps {
   position?: ModalPosition; // button position
   draggable?: boolean; // default: true
   wallet?: any; // optional
+  isWalletConnected?: boolean; // controlled wallet state
+  walletAddress?: string; // controlled wallet address
+  onConnectWallet?: () => void; // connect wallet callback
   // More: buttonClassName, modalClassName, showBackdrop, buttonContent, onButtonClick, onModalClose
 }
 ```
