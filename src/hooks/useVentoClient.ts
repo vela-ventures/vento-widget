@@ -9,6 +9,7 @@ export interface UseVentoClientResult {
   error: string | null;
   hasSigner: boolean;
   userAddress: string | null;
+  refreshAddress: () => Promise<void>;
 }
 
 export function useVentoClient(
@@ -19,6 +20,33 @@ export function useVentoClient(
   const [error, setError] = useState<string | null>(null);
   const [hasSigner, setHasSigner] = useState<boolean>(false);
   const [userAddress, setUserAddress] = useState<string | null>(null);
+
+  const refreshAddress = async () => {
+    try {
+      let signerInput = externalSigner;
+      if (
+        !signerInput &&
+        typeof window !== "undefined" &&
+        (window as any).arweaveWallet
+      ) {
+        signerInput = (window as any).arweaveWallet;
+      }
+
+      let activeAddress: string | null = null;
+      if (signerInput && typeof signerInput.getActiveAddress === "function") {
+        try {
+          activeAddress = await signerInput.getActiveAddress();
+        } catch {
+          activeAddress = null;
+        }
+      }
+
+      setUserAddress(activeAddress ?? null);
+      setHasSigner(!!signerInput && !!activeAddress);
+    } catch (e) {
+      // ignore errors
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -77,8 +105,58 @@ export function useVentoClient(
     };
   }, [externalSigner]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const reinitIfNeeded = async () => {
+      try {
+        let signerInput = externalSigner;
+        if (!signerInput && (window as any).arweaveWallet) {
+          signerInput = (window as any).arweaveWallet;
+        }
+
+        let activeAddress: string | null = null;
+        if (signerInput && typeof signerInput.getActiveAddress === "function") {
+          try {
+            activeAddress = await signerInput.getActiveAddress();
+          } catch {
+            activeAddress = null;
+          }
+        }
+
+        const signer = signerInput
+          ? createDataItemSigner(signerInput)
+          : undefined;
+        const nextHasSigner = !!signer && !!activeAddress;
+        const nextAddress = activeAddress ?? null;
+
+        if (hasSigner !== nextHasSigner || userAddress !== nextAddress) {
+          const sdkClient = signer
+            ? new VentoClient({ signer })
+            : new VentoClient();
+          setClient(sdkClient);
+          setUserAddress(nextAddress);
+          setHasSigner(nextHasSigner);
+        }
+      } catch (e) {
+        // ignore errors
+      }
+    };
+
+    const onWalletLoaded = () => reinitIfNeeded();
+    const onWalletSwitch = () => reinitIfNeeded();
+
+    window.addEventListener("arweaveWalletLoaded", onWalletLoaded as any);
+    window.addEventListener("walletSwitch", onWalletSwitch as any);
+
+    return () => {
+      window.removeEventListener("arweaveWalletLoaded", onWalletLoaded as any);
+      window.removeEventListener("walletSwitch", onWalletSwitch as any);
+    };
+  }, []);
+
   return useMemo(
-    () => ({ client, loading, error, hasSigner, userAddress }),
-    [client, loading, error, hasSigner, userAddress]
+    () => ({ client, loading, error, hasSigner, userAddress, refreshAddress }),
+    [client, loading, error, hasSigner, userAddress, refreshAddress]
   );
 }

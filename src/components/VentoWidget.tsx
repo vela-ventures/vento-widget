@@ -19,6 +19,9 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
   theme = "dark",
   wallet,
   draggable = true,
+  isWalletConnected,
+  walletAddress,
+  onConnectWallet,
 }) => {
   const { isOpen, open, close, modalPosition, buttonRef } = useModal();
 
@@ -65,7 +68,13 @@ export const VentoWidget: React.FC<VentoWidgetProps> = ({
             : undefined
         }
       >
-        <ModalContent wallet={wallet} />
+        <ModalContent
+          wallet={wallet}
+          isWalletConnected={isWalletConnected}
+          walletAddress={walletAddress}
+          onConnectWallet={onConnectWallet}
+          isOpen={isOpen}
+        />
       </Modal>
     </div>
   );

@@ -38,6 +38,9 @@ export interface VentoWidgetProps {
   theme?: "light" | "dark";
   wallet?: any;
   draggable?: boolean;
+  isWalletConnected?: boolean;
+  walletAddress?: string;
+  onConnectWallet?: () => void;
 }
 
 export interface TokenInfo {

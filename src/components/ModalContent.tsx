@@ -29,9 +29,69 @@ import {
   AccordionContent,
 } from "./ui/accordion";
 
-export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
+export const ModalContent: React.FC<{
+  wallet?: any;
+  isWalletConnected?: boolean;
+  walletAddress?: string;
+  onConnectWallet?: () => void;
+  isOpen?: boolean;
+}> = ({
+  wallet,
+  isWalletConnected,
+  walletAddress,
+  onConnectWallet,
+  isOpen,
+}) => {
   const { tokens, error } = useTokens();
-  const { hasSigner, userAddress } = useVentoClient(wallet);
+
+  const { hasSigner, userAddress, refreshAddress } = useVentoClient(wallet);
+
+  const finalHasSigner =
+    isWalletConnected !== undefined ? isWalletConnected : hasSigner;
+  const finalUserAddress =
+    walletAddress !== undefined ? walletAddress : userAddress;
+
+  React.useEffect(() => {
+    if (!finalHasSigner || finalUserAddress) return;
+
+    let retryCount = 0;
+    const maxRetries = 3;
+    const retryInterval = 3000;
+
+    const retryGetAddress = async () => {
+      try {
+        await refreshAddress();
+      } catch {
+        // ignore
+      }
+    };
+
+    const interval = setInterval(() => {
+      retryCount++;
+      retryGetAddress();
+
+      if (retryCount >= maxRetries) {
+        clearInterval(interval);
+      }
+    }, retryInterval);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  React.useEffect(() => {
+    if (isOpen && finalHasSigner && !finalUserAddress) {
+      const getAddress = async () => {
+        try {
+          await refreshAddress();
+        } catch {
+          // ignore
+        }
+      };
+      getAddress();
+    }
+  }, [isOpen]);
+
+  const showWalletUI = finalHasSigner && finalUserAddress;
 
   const [sellToken, setSellToken] = React.useState<TokenInfo | undefined>(
     undefined
@@ -45,12 +105,20 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens]);
 
-  const sellBalanceHook = useTokenBalance(sellToken, userAddress ?? undefined, {
-    pollMs: 30000,
-  });
-  const buyBalanceHook = useTokenBalance(buyToken, userAddress ?? undefined, {
-    pollMs: 30000,
-  });
+  const sellBalanceHook = useTokenBalance(
+    sellToken,
+    finalUserAddress ?? undefined,
+    {
+      pollMs: 30000,
+    }
+  );
+  const buyBalanceHook = useTokenBalance(
+    buyToken,
+    finalUserAddress ?? undefined,
+    {
+      pollMs: 30000,
+    }
+  );
   const sellBalance = sellBalanceHook.balance;
   const buyBalance = buyBalanceHook.balance;
   const sellBalanceLoading = sellBalanceHook.loading;
@@ -69,7 +137,7 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
     fromToken: sellToken,
     toToken: buyToken,
     amount: sellAmount,
-    userAddress: userAddress ?? undefined,
+    userAddress: finalUserAddress ?? undefined,
   });
 
   const processIds = React.useMemo(() => {
@@ -158,7 +226,7 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
       sellAmount,
       buyAmount,
       bestRoute,
-      userAddress: userAddress ?? undefined,
+      userAddress: finalUserAddress ?? undefined,
     });
   }, [
     sellToken,
@@ -166,7 +234,7 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
     sellAmount,
     buyAmount,
     bestRoute,
-    userAddress,
+    finalUserAddress,
     onSwapClick,
   ]);
 
@@ -176,9 +244,16 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
       buyToken,
       sellAmount,
       bestRoute,
-      userAddress: userAddress ?? undefined,
+      userAddress: finalUserAddress ?? undefined,
     });
-  }, [sellToken, buyToken, sellAmount, bestRoute, userAddress, handleConfirm]);
+  }, [
+    sellToken,
+    buyToken,
+    sellAmount,
+    bestRoute,
+    finalUserAddress,
+    handleConfirm,
+  ]);
 
   const flipTokens = React.useCallback(() => {
     setSellToken((prevSell) => {
@@ -490,10 +565,17 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
         </div>
       )}
 
-      {!hasSigner && (
+      {!showWalletUI && (
         <div className="absolute backdrop-blur-sm inset-0 z-10 flex items-center justify-center bg-card/95">
-          <div className="text-base text-secondary-foreground">
-            Wallet is not connected.
+          <div className="text-center">
+            <div className="text-base text-secondary-foreground mb-4">
+              Wallet is not connected.
+            </div>
+            {onConnectWallet && (
+              <Button onClick={onConnectWallet} className="rounded-xl">
+                Connect Wallet
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -501,4 +583,4 @@ export const ModalContent: React.FC<{ wallet?: any }> = ({ wallet }) => {
   );
 };
 
-export default ModalContent;
+export default React.memo(ModalContent);
