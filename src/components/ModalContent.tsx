@@ -125,9 +125,10 @@ export const ModalContent: React.FC<{
   const buyBalanceLoading = buyBalanceHook.loading;
 
   const [sellAmount, setSellAmount] = React.useState<string>("");
+  const [buyAmount, setBuyAmount] = React.useState<string>("");
   const [selecting, setSelecting] = React.useState<null | "sell" | "buy">(null);
   const {
-    outputAmount: buyAmount,
+    outputAmount: quoteBuyAmount,
     loading: quoteLoading,
     bestRoute,
     error: quoteError,
@@ -191,7 +192,7 @@ export const ModalContent: React.FC<{
     if (quoteLoading) return "";
     if (quoteError || noRoutes || estimateFailed) return "";
     if (!buyAmount) return "";
-    return formatTokenAmount(buyAmount ?? "0");
+    return formatTokenAmount(buyAmount);
   }, [quoteLoading, quoteError, noRoutes, estimateFailed, buyAmount]);
 
   const isSellAmountValid = React.useMemo(() => {
@@ -256,12 +257,15 @@ export const ModalContent: React.FC<{
   ]);
 
   const flipTokens = React.useCallback(() => {
+    if (!sellToken || !buyToken) return;
+    setSellAmount("");
+    setBuyAmount("");
     setSellToken((prevSell) => {
       const newSell = buyToken;
       setBuyToken(prevSell);
       return newSell;
     });
-  }, [buyToken]);
+  }, [buyToken, sellToken]);
 
   const {
     status,
@@ -276,6 +280,12 @@ export const ModalContent: React.FC<{
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCompleted]);
+
+  React.useEffect(() => {
+    if (quoteBuyAmount && !quoteLoading && !quoteError) {
+      setBuyAmount(quoteBuyAmount);
+    }
+  }, [quoteBuyAmount, quoteLoading, quoteError]);
 
   const exchangeText = React.useMemo(() => {
     if (!sellToken || !buyToken) return undefined;
@@ -411,9 +421,10 @@ export const ModalContent: React.FC<{
             token={buyToken}
             balance={buyBalance}
             amountLoading={quoteLoading}
-            amount={buyDisplayAmount}
+            amount={buyAmount}
             usd={buyUsd}
             loadingBalance={!!buyBalanceLoading}
+            onAmountChange={setBuyAmount}
             onTokenClick={() => setSelecting("buy")}
           />
         </div>
@@ -538,12 +549,13 @@ export const ModalContent: React.FC<{
               setConfirmOpen(false);
               if (isCompleted) {
                 setSellAmount("");
+                setBuyAmount("");
               }
             }}
             sellToken={sellToken}
             buyToken={buyToken}
             sellAmount={sellAmount}
-            buyAmount={buyAmount ?? "0"}
+            buyAmount={buyAmount}
             sellBalance={sellBalance}
             buyBalance={buyBalance}
             sellBalanceLoading={!!sellBalanceLoading}
