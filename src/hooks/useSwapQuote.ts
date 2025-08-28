@@ -8,6 +8,7 @@ interface UseSwapQuoteParams {
   toToken?: TokenInfo;
   amount?: string;
   userAddress?: string;
+  isReverse?: boolean;
 }
 
 export interface UseSwapQuoteResult {
@@ -49,29 +50,56 @@ export function useSwapQuote(
     setLoading(true);
     setError(null);
     try {
-      const rawAmount = convertToDenomination(
-        params.amount!,
-        params.fromToken!.denomination
-      );
-      const result: any = await (client as any).getSwapQuote({
-        fromTokenId: params.fromToken!.processId,
-        toTokenId: params.toToken!.processId,
-        amount: rawAmount,
-        userAddress: params.userAddress,
-      });
-      if (myId !== requestIdRef.current) return;
-      setRawQuote(result ?? null);
-      const route = result?.bestRoute ?? null;
-      setBestRoute(route);
-      const estimated = route?.estimatedOutput as string | undefined;
-      if (typeof estimated === "string") {
-        const human = convertFromDenomination(
-          estimated,
+      if (params.isReverse) {
+        const rawAmount = convertToDenomination(
+          params.amount!,
           params.toToken!.denomination
         );
-        setOutputAmount(human);
+        const result: any = await (client as any).getReverseQuote({
+          fromTokenId: params.fromToken!.processId,
+          toTokenId: params.toToken!.processId,
+          desiredOutput: rawAmount,
+          userAddress: params.userAddress,
+        });
+        if (myId !== requestIdRef.current) return;
+        setRawQuote(result ?? null);
+        const route = result?.bestRoute ?? null;
+        setBestRoute(route);
+        const estimated = route?.requiredInput as string | undefined;
+        if (typeof estimated === "string") {
+          const human = convertFromDenomination(
+            estimated,
+            params.fromToken!.denomination
+          );
+          setOutputAmount(human);
+        } else {
+          setOutputAmount(null);
+        }
       } else {
-        setOutputAmount(null);
+        const rawAmount = convertToDenomination(
+          params.amount!,
+          params.fromToken!.denomination
+        );
+        const result: any = await (client as any).getSwapQuote({
+          fromTokenId: params.fromToken!.processId,
+          toTokenId: params.toToken!.processId,
+          amount: rawAmount,
+          userAddress: params.userAddress,
+        });
+        if (myId !== requestIdRef.current) return;
+        setRawQuote(result ?? null);
+        const route = result?.bestRoute ?? null;
+        setBestRoute(route);
+        const estimated = route?.estimatedOutput as string | undefined;
+        if (typeof estimated === "string") {
+          const human = convertFromDenomination(
+            estimated,
+            params.toToken!.denomination
+          );
+          setOutputAmount(human);
+        } else {
+          setOutputAmount(null);
+        }
       }
     } catch (err) {
       if (requestIdRef.current !== myId) return;
@@ -82,7 +110,14 @@ export function useSwapQuote(
     } finally {
       if (requestIdRef.current === myId) setLoading(false);
     }
-  }, [client, params.amount, params.fromToken, params.toToken, valid]);
+  }, [
+    client,
+    params.amount,
+    params.fromToken,
+    params.toToken,
+    params.isReverse,
+    valid,
+  ]);
 
   useEffect(() => {
     if (timerRef.current) {
@@ -106,6 +141,7 @@ export function useSwapQuote(
     params.fromToken?.processId,
     params.toToken?.processId,
     params.userAddress,
+    params.isReverse,
   ]);
 
   const refetch = useCallback(() => {

@@ -131,6 +131,11 @@ export const ModalContent: React.FC<{
   const [sellAmount, setSellAmount] = React.useState<string>("");
   const [buyAmount, setBuyAmount] = React.useState<string>("");
   const [selecting, setSelecting] = React.useState<null | "sell" | "buy">(null);
+
+  const [lastInputField, setLastInputField] = React.useState<"sell" | "buy">(
+    "sell"
+  );
+
   const {
     outputAmount: quoteBuyAmount,
     loading: quoteLoading,
@@ -141,8 +146,9 @@ export const ModalContent: React.FC<{
   } = useSwapQuote({
     fromToken: sellToken,
     toToken: buyToken,
-    amount: sellAmount,
+    amount: lastInputField === "sell" ? sellAmount : buyAmount,
     userAddress: finalUserAddress ?? undefined,
+    isReverse: lastInputField === "buy",
   });
 
   const processIds = React.useMemo(() => {
@@ -214,6 +220,13 @@ export const ModalContent: React.FC<{
     return amtNum <= balNum;
   }, [sellBalance, sellAmount]);
 
+  const isBuyAmountValid = React.useMemo(() => {
+    if (buyAmount === "") return true;
+    const amtNum = Number(buyAmount);
+    if (!Number.isFinite(amtNum) || amtNum < 0) return false;
+    return true;
+  }, [buyAmount]);
+
   const {
     confirmOpen,
     setConfirmOpen,
@@ -268,6 +281,7 @@ export const ModalContent: React.FC<{
     if (!sellToken || !buyToken) return;
     setSellAmount("");
     setBuyAmount("");
+    setLastInputField("sell");
     setSellToken((prevSell) => {
       const newSell = buyToken;
       setBuyToken(prevSell);
@@ -291,9 +305,13 @@ export const ModalContent: React.FC<{
 
   React.useEffect(() => {
     if (quoteBuyAmount && !quoteLoading && !quoteError) {
-      setBuyAmount(quoteBuyAmount);
+      if (lastInputField === "sell") {
+        setBuyAmount(quoteBuyAmount);
+      } else {
+        setSellAmount(quoteBuyAmount);
+      }
     }
-  }, [quoteBuyAmount, quoteLoading, quoteError]);
+  }, [quoteBuyAmount, quoteLoading, quoteError, lastInputField]);
 
   const exchangeText = React.useMemo(() => {
     if (!sellToken || !buyToken) return undefined;
@@ -371,7 +389,9 @@ export const ModalContent: React.FC<{
   return (
     <Card
       className={`w-full backdrop-blur-md border-border ${
-        isInDrawer ? "shadow-none border-0 bg-transparent" : "shadow-black/40 max-w-[380px]"
+        isInDrawer
+          ? "shadow-none border-0 bg-transparent"
+          : "shadow-black/40 max-w-[380px]"
       }`}
     >
       <CardHeader className="pb-4">
@@ -412,9 +432,15 @@ export const ModalContent: React.FC<{
             balance={sellBalance}
             amount={sellAmount}
             usd={sellUsd}
-            onAmountChange={setSellAmount}
+            onAmountChange={(value) => {
+              setSellAmount(value);
+              setLastInputField("sell");
+              if (!value || value === "") {
+                setBuyAmount("");
+              }
+            }}
             loadingBalance={!!sellBalanceLoading}
-            amountLoading={false}
+            amountLoading={lastInputField === "buy" && quoteLoading}
             onTokenClick={() => setSelecting("sell")}
             invalid={!isSellAmountValid}
           />
@@ -432,11 +458,17 @@ export const ModalContent: React.FC<{
             label="Buy"
             token={buyToken}
             balance={buyBalance}
-            amountLoading={quoteLoading}
+            amountLoading={lastInputField === "sell" && quoteLoading}
             amount={buyAmount}
             usd={buyUsd}
             loadingBalance={!!buyBalanceLoading}
-            onAmountChange={setBuyAmount}
+            onAmountChange={(value) => {
+              setBuyAmount(value);
+              setLastInputField("buy");
+              if (!value || value === "") {
+                setSellAmount("");
+              }
+            }}
             onTokenClick={() => setSelecting("buy")}
           />
         </div>
@@ -470,7 +502,11 @@ export const ModalContent: React.FC<{
 
         {(() => {
           const invalidSell =
-            !sellAmount || Number(sellAmount) <= 0 || !isSellAmountValid;
+            lastInputField === "sell" &&
+            (!sellAmount || Number(sellAmount) <= 0 || !isSellAmountValid);
+          const invalidBuy =
+            lastInputField === "buy" &&
+            (!buyAmount || Number(buyAmount) <= 0 || !isBuyAmountValid);
           const noRoutesFound =
             !quoteLoading &&
             !quoteError &&
@@ -490,6 +526,7 @@ export const ModalContent: React.FC<{
           const disabled =
             quoteLoading ||
             invalidSell ||
+            invalidBuy ||
             noRoutesFound ||
             (!hasValidQuote && !quoteError && !estimateFailed);
           const onClick =
@@ -506,7 +543,7 @@ export const ModalContent: React.FC<{
                 <Loader2 className="size-4 animate-spin" />
               </span>
             );
-          } else if (invalidSell) {
+          } else if (invalidSell || invalidBuy) {
             label = "Enter amounts";
           } else if (quoteError || estimateFailed) {
             label = "Retry";
