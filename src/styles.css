@@ -104,3 +104,7 @@
 .vento-widget input[type="number"] {
   -moz-appearance: textfield;
 }
+
+.vento-widget button {
+  outline: none;
+}

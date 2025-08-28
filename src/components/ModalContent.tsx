@@ -35,12 +35,14 @@ export const ModalContent: React.FC<{
   walletAddress?: string;
   onConnectWallet?: () => void;
   isOpen?: boolean;
+  isInDrawer?: boolean;
 }> = ({
   wallet,
   isWalletConnected,
   walletAddress,
   onConnectWallet,
   isOpen,
+  isInDrawer = false,
 }) => {
   const { tokens, error } = useTokens();
 
@@ -367,7 +369,11 @@ export const ModalContent: React.FC<{
   ]);
 
   return (
-    <Card className="w-[380px] backdrop-blur-md border-border shadow-black/40">
+    <Card
+      className={`w-full backdrop-blur-md border-border ${
+        isInDrawer ? "shadow-none border-0 bg-transparent" : "shadow-black/40 max-w-[380px]"
+      }`}
+    >
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
